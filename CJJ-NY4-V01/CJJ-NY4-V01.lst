@@ -1,0 +1,2376 @@
+
+                    Nyquest Technology Co., Ltd.
+
+NYASM 2.03 [Build 022317.00]  File=D Date=2017/4/25 16:04:42
+
+    ADDR  OPCODE/VALUE              LINE   TAG  SOURCE                   STATEMENT    
+
+                                    0-0001      ; =========================================================================      
+                                    0-0002      ; Project:       CJJ-NY4-V01
+                                    0-0003      ; File:          main.asm
+                                    0-0004      ; Description:   New Project for NY4
+                                    0-0005      ;                 
+                                    0-0006      ; Author:        CaiJinJu
+                                    0-0007      ; Version:       1.0
+                                    0-0008      ; Date:          2017/04/21
+                                    0-0009      ; =========================================================================
+                                    0-0010      ;--------------- File Include ---------------------------------------------
+                                    0-0011      ;--------------------------------------------------------------------------
+                                    0-0012      #include		NY4.H						; The Header File for NY4 Series
+                                    1-0001      ;=======================================================================================================================
+                                    1-0002      ;File:			NY4.h
+                                    1-0003      ;Description:	The Header File for NY4 Series
+                                    1-0004      ;Author:		David Huang
+                                    1-0005      ;Date:			2015/08/19
+                                    1-0006      ;=======================================================================================================================
+                                    1-0007      
+                                    1-0008      ;===============================================================================
+                                    1-0009      ;	System Registers Definition
+                                    1-0010      ;===============================================================================
+                  0                 1-  11      RPT0              EQU     0x00
+                  1                 1-  12      RPT1              EQU     0x01
+                  2                 1-  13      RPT2              EQU     0x02
+                  3                 1-  14      RPT3              EQU     0x03
+                  4                 1-  15      RPT4              EQU     0x04
+                                    1-0016      ;NA                EQU     0x05			;N/A (System reserved)
+                  6                 1-  17      ROD1              EQU     0x06
+                  7                 1-  18      ROD2              EQU     0x07
+                  8                 1-  19      FD                EQU     0x08
+                  8                 1-  20      BT                EQU     0x08
+                  9                 1-  21      AUD               EQU     0x09
+                  9                 1-  22      SFR               EQU     0x09
+                  A                 1-  23      PA                EQU     0x0A
+                  B                 1-  24      PAIO              EQU     0x0B
+                  C                 1-  25      PB                EQU     0x0C
+                  D                 1-  26      PBIO              EQU     0x0D
+                                    0-0013      
+                                    0-0014      #include		"SystemFiles\cjj.mac4"
+                                    2-0001      ; =========================================================================
+                                    2-0002      ; Created by NYIDE.
+                                    2-0003      ; User: CaiJinJu
+                                    2-0004      ; Date: 4/21/2017
+                                    2-0005      ; Time: 3:46 PM
+                                    2-0006      ; =========================================================================
+                                    2-0007      ;=================================================
+                                    2-0008      ;		系统定义
+                                    2-0009      ;=================================================
+                                    2-0010      #define		B_TOF	sfr,0
+                                    2-0011      #define		B_QIOF	sfr,1
+                                    2-0012      #define		B_BTF	sfr,2
+                                    2-0013      #define		B_PFLG	sfr,3
+                                    2-0014      
+                                    2-0015      ;=================================================
+                                    2-0016      ;		位运算
+                                    2-0017      ;=================================================
+                                    2-  18  M  setB	macro	Register,Bit
+                                    2-  19  M  		mvma	Register
+                                    2-  20  M  		orl		1<<Bit
+                                    2-  21  M  		mvam	Register
+                                    2-  22  M  endm
+                                    2-0023      ;-------------------------------------------------
+                                    2-  24  M  rstB	macro	Register,Bit
+                                    2-  25  M  		mvma	Register
+                                    2-  26  M  		andl	~(1<<Bit)
+                                    2-  27  M  		mvam	Register
+                                    2-  28  M  endm
+                                    2-0029      
+                                    2-0030      ;-------------------------------------------------
+                                    2-  31  M  xorB	macro	Register,Bit
+                                    2-  32  M  		mvma	Register
+                                    2-  33  M  		xorl	1<<Bit
+                                    2-  34  M  		mvam	Register
+                                    2-  35  M  endm
+                                    2-0036      ;=================================================
+                                    2-0037      ;		跳转指令
+                                    2-0038      ;=================================================
+                                    2-  39  M  jz		macro	Address
+                                    2-  40  M  		cpzz
+                                    2-  41  M  		jmp		Address
+                                    2-  42  M  endm
+                                    2-0043      ;-------------------------------------------------
+                                    2-  44  M  jnz		macro	Address
+                                    2-  45  M  		cnzz
+                                    2-  46  M  		jmp		Address
+                                    2-  47  M  endm
+                                    2-0048      ;-------------------------------------------------
+                                    2-  49  M  jc		macro	Address
+                                    2-  50  M  		cpcz
+                                    2-  51  M  		jmp		Address
+                                    2-  52  M  endm
+                                    2-0053      ;-------------------------------------------------
+                                    2-  54  M  jnc		macro	Address
+                                    2-  55  M  		cncz
+                                    2-  56  M  		jmp		Address
+                                    2-  57  M  endm
+                                    2-0058      ;-------------------------------------------------
+                                    2-  59  M  cje_al	macro	Constant,Address
+                                    2-  60  M  		cnal	Constant
+                                    2-  61  M  		jmp		Address
+                                    2-  62  M  endm
+                                    2-0063      ;-------------------------------------------------
+                                    2-  64  M  cjne_al	macro	Constant,Address
+                                    2-  65  M  		cpal	Constant
+                                    2-  66  M  		jmp		Address
+                                    2-  67  M  endm
+                                    2-0068      ;-------------------------------------------------
+                                    2-  69  M  cje_am	macro	Register,Address
+                                    2-  70  M  		cnam	Register
+                                    2-  71  M  		jmp		Address
+                                    2-  72  M  endm
+                                    2-0073      ;-------------------------------------------------
+                                    2-  74  M  cjne_am	macro	Register,Address
+                                    2-  75  M  		cpam	Register
+                                    2-  76  M  		jmp		Address
+                                    2-  77  M  endm
+                                    2-0078      ;-------------------------------------------------
+                                    2-0079      ;		以下 A 值会改变
+                                    2-0080      ;-------------------------------------------------
+                                    2-  81  M  jb		macro	Register,Bit,Address
+                                    2-  82  M  		mvma	Register
+                                    2-  83  M  		andl	1<<Bit
+                                    2-  84  M  		jnz		Address
+                                    2-  85  M  endm
+                                    2-0086      ;-------------------------------------------------
+                                    2-  87  M  jnb		macro	Register,Bit,Address
+                                    2-  88  M  		mvma	Register
+                                    2-  89  M  		andl	1<<Bit
+                                    2-  90  M  		jz		Address
+                                    2-  91  M  endm
+                                    2-0092      ;-------------------------------------------------
+                                    2-  93  M  cje_ml	macro	Register,Constant,Address
+                                    2-  94  M  		mvla	Constant
+                                    2-  95  M  		cje_am	Register,Address
+                                    2-  96  M  endm
+                                    2-0097      ;-------------------------------------------------
+                                    2-  98  M  cjne_ml	macro	Register,Constant,Address
+                                    2-  99  M  		mvla	Constant
+                                    2- 100  M  		cjne_am	Register,Address
+                                    2- 101  M  endm
+                                    2-0102      ;-------------------------------------------------
+                                    2- 103  M  cje_mm	macro	Register1,Register2,Address
+                                    2- 104  M  		mvma	Register1
+                                    2- 105  M  		cje_am	Register2,Address
+                                    2- 106  M  endm
+                                    2-0107      ;-------------------------------------------------
+                                    2- 108  M  cjne_mm	macro	Register1,Register2,Address
+                                    2- 109  M  		mvma	Register1
+                                    2- 110  M  		cjne_am	Register2,Address
+                                    2- 111  M  endm
+                                    2-0112      ;-------------------------------------------------
+                                    2- 113  M  cjlt_ml	macro	Register,Constant,Address
+                                    2- 114  M  		setc
+                                    2- 115  M  		mvma	Register
+                                    2- 116  M  		addl	low0 (~Constant)
+                                    2- 117  M  		jnc		Address
+                                    2- 118  M  endm
+                                    2-0119      ;-------------------------------------------------
+                                    2- 120  M  cjge_ml	macro	Register,Constant,Address
+                                    2- 121  M  		setc
+                                    2- 122  M  		mvma	Register
+                                    2- 123  M  		addl	low0 (~Constant)
+                                    2- 124  M  		jc		Address
+                                    2- 125  M  endm
+                                    2-0126      ;=================================================
+                                    2-0127      ;		加法指令
+                                    2-0128      ;=================================================
+                                    2- 129  M  inc_2m	macro	RegisterH,RegisterL
+                                    2- 130  M  		incm	RegisterL
+                                    2- 131  M  		mvam	RegisterL
+                                    2- 132  M  		mvla	0x0
+                                    2- 133  M  		addm	RegisterH
+                                    2- 134  M  		mvam	RegisterH
+                                    2- 135  M  endm
+                                    2-0136      ;-------------------------------------------------
+                                    2- 137  M  add_ml	macro	Register,Constant
+                                    2- 138  M  		rstc
+                                    2- 139  M  		mvla	low0 Constant
+                                    2- 140  M  		addm	Register
+                                    2- 141  M  		mvam	Register
+                                    2- 142  M  endm
+                                    2-0143      ;-------------------------------------------------
+                                    2- 144  M  adc_ml	macro	Register,Constant
+                                    2- 145  M  		mvla	low0 Constant
+                                    2- 146  M  		addm	Register
+                                    2- 147  M  		mvam	Register
+                                    2- 148  M  endm
+                                    2-0149      ;-------------------------------------------------
+                                    2- 150  M  add_mm	macro	Register1,Register2
+                                    2- 151  M  		rstc
+                                    2- 152  M  		mvla	Register1
+                                    2- 153  M  		addm	Register2
+                                    2- 154  M  		mvam	Register1
+                                    2- 155  M  endm
+                                    2-0156      ;-------------------------------------------------
+                                    2- 157  M  adc_mm	macro	Register1,Register2
+                                    2- 158  M  		mvla	Register1
+                                    2- 159  M  		addm	Register2
+                                    2- 160  M  		mvam	Register1
+                                    2- 161  M  endm
+                                    2-0162      ;-------------------------------------------------
+                                    2- 163  M  add_2ml	macro	RegisterH,RegisterL,Constant
+                                    2- 164  M  		add_ml	RegisterL,(low0 Constant)
+                                    2- 165  M  		adc_ml	RegisterH,(low1 Constant)
+                                    2- 166  M  endm
+                                    2-0167      ;-------------------------------------------------
+                                    2- 168  M  add_2mm	macro	Register1H,Register1L,Register2H,Register2L
+                                    2- 169  M  		add_mm	Register1L,Register2L
+                                    2- 170  M  		adc_mm	Register1H,Register2H
+                                    2- 171  M  endm
+                                    2-0172      ;=================================================
+                                    2-0173      ;		减法指令
+                                    2-0174      ;=================================================
+                                    2- 175  M  sub_ml	macro	Register,Constant
+                                    2- 176  M  		setc
+                                    2- 177  M  		mvma	Register
+                                    2- 178  M  		addl	low0 (~Constant)
+                                    2- 179  M  		mvam	Register
+                                    2- 180  M  endm
+                                    2-0181      ;-------------------------------------------------
+                                    2- 182  M  sbc_ml	macro	Register,Constant
+                                    2- 183  M  		mvma	Register
+                                    2- 184  M  		addl	low0 (~Constant)
+                                    2- 185  M  		mvam	Register
+                                    2- 186  M  endm
+                                    2-0187      ;-------------------------------------------------
+                                    2- 188  M  sbc_2ml	macro	RegisterH,RegisterL,Constant
+                                    2- 189  M  		sub_ml	RegisterL,(low0 Constant)
+                                    2- 190  M  		sbc_ml	RegisterL,(low1 Constant)
+                                    2- 191  M  endm
+                                    2-0192      ;-------------------------------------------------
+                                    2- 193  M  sub_mm	macro	Register1,Register2
+                                    2- 194  M  		setc
+                                    2- 195  M  		mvma	Register2
+                                    2- 196  M  		xorl	0xf
+                                    2- 197  M  		addm	Register1
+                                    2- 198  M  		mvam	Register1
+                                    2- 199  M  endm
+                                    2-0200      ;-------------------------------------------------
+                                    2- 201  M  sbc_mm	macro	Register1,Register2
+                                    2- 202  M  		mvma	Register2
+                                    2- 203  M  		xorl	0xf
+                                    2- 204  M  		addm	Register1
+                                    2- 205  M  		mvam	Register1
+                                    2- 206  M  endm
+                                    2-0207      ;-------------------------------------------------
+                                    2- 208  M  sub_2mm	macro	Register1H,Register1L,Register2H,Register2L
+                                    2- 209  M  		sub_mm	Register1L,Register2L
+                                    2- 210  M  		sbc_mm	Register1H,Register2H
+                                    2- 211  M  endm
+                                    2-0212      ;-------------------------------------------------
+                                    2- 213  M  dec_2m	macro	RegisterH,RegisterL
+                                    2- 214  M  	local	L_Exit
+                                    2- 215  M  		decm	RegisterL
+                                    2- 216  M  		mvam	RegisterL
+                                    2- 217  M  		jc		L_Exit
+                                    2- 218  M  		decm	RegisterH
+                                    2- 219  M  		mvam	RegisterH
+                                    2- 220  M  	L_Exit:
+                                    2- 221  M  endm
+                                    2-0222      ;-------------------------------------------------
+                                    2- 223  M  dec_3m	macro	RegisterH,RegisterM,RegisterL
+                                    2- 224  M  	local	L_Exit
+                                    2- 225  M  		decm	RegisterL
+                                    2- 226  M  		mvam	RegisterL
+                                    2- 227  M  		jc		L_Exit
+                                    2- 228  M  		decm	RegisterM
+                                    2- 229  M  		mvam	RegisterM
+                                    2- 230  M  		jc		L_Exit
+                                    2- 231  M  		decm	RegisterH
+                                    2- 232  M  		mvam	RegisterH
+                                    2- 233  M  	L_Exit:
+                                    2- 234  M  endm
+                                    2-0235      ;=================================================
+                                    2-0236      ;		扩展指令
+                                    2-0237      ;=================================================
+                                    2- 238  M  mvlm	macro	Register,Constant
+                                    2- 239  M  		mvla	Constant
+                                    2- 240  M  		mvam	Register
+                                    2- 241  M  endm
+                                    2-0242      ;-------------------------------------------------
+                                    2- 243  M  jz_3m	macro	RegisterH,RegisterM,RegisterL,Address
+                                    2- 244  M  		mvma	RegisterH
+                                    2- 245  M  		orm		RegisterM
+                                    2- 246  M  		orm		RegisterL
+                                    2- 247  M  		jz		Address
+                                    2- 248  M  endm
+                                    0-0015      #include		"SystemFiles\SystemMacro.asm"
+                                    3-0001      ; =========================================================================
+                                    3-0002      ; Created by NYIDE.
+                                    3-0003      ; User: CaiJinJu
+                                    3-0004      ; Date: 3/21/2017
+                                    3-0005      ; Time: 5:12 PM
+                                    3-0006      ; =========================================================================
+                 35                 3-   7      R_PG1FGTabAddr0		equ		0x35 ; 
+                 36                 3-   8      R_PG1FGTabAddr1		equ		0x36 ; 
+                 37                 3-   9      R_PG1FGTabAddr2		equ		0x37 ; 
+                 38                 3-  10      R_PG1FGTabAddr3		equ		0x38 ; 
+                                    3-0011      ;---------------------------------
+                 39                 3-  12      R_PG0SampleRateL	equ		0x39 ; 声音采样率
+                 3A                 3-  13      R_PG0SampleRateH	equ		0x3a ; 
+                                    3-0014      ;--------------------------------- 
+                 3B                 3-  15      R_PG1VoiceAddr0		equ		0x3b ; 声音地址
+                 3C                 3-  16      R_PG1VoiceAddr1		equ		0x3c ; 
+                 3D                 3-  17      R_PG1VoiceAddr2		equ		0x3d ; 
+                 3E                 3-  18      R_PG1VoiceAddr3		equ		0x3e ; 
+                 3F                 3-  19      R_PG1VoiceAddr4		equ		0x3f ; 
+                                    3-0020      ;--------------------------------- 
+                                    3-0021      
+                  0                 3-  22      page_sys		equ		0
+                  0                 3-  23      page_play		equ		0
+                  1                 3-  24      page_user		equ		1
+                                    3-0025      
+                                    3-0026      ;======================================================
+                                    3-0027      ;		页面动态分配
+                                    3-0028      ; RAM
+                                    3-0029      ;	- 从 0x10 ~ 0x2f
+                                    3-0030      ; Bit
+                                    3-0031      ;	- 从 0x30 ~ 0x34
+                                    3-0032      ;======================================================
+                                    3-0033      variable	V_DynamicRam=0x10
+                                    3-0034      variable	V_MaxSRamAddr=0x2f
+                                    3-0035      
+                                    3-0036      variable	V_BitRam=0x30
+                                    3-0037      variable	V_BitRamMax=0x34
+                                    3-0038      variable	V_BitNow=0x0
+                                    3-0039      
+                                    3-0040      ;======================================================
+                                    3-0041      ;==============================================================================
+                                    3-0042      ;	宏MACRO定义
+                                    3-0043      ;==============================================================================
+                                    3-  44  M  M_DynRam	macro	regName
+                                    3-  45  M  	if (V_DynamicRam>V_MaxSRamAddr)
+                                    3-  46  M  		error	RAM is run out ! Ram name is --> regName
+                                    3-  47  M  	else
+                                    3-  48  M  		ifndef	regName
+                                    3-  49  M  			regName		equ		V_DynamicRam
+                                    3-  50  M  			V_DynamicRam=V_DynamicRam+1
+                                    3-  51  M  		else
+                                    3-  52  M  			error	Ram name has been defined ! Ram name is -->  regName
+                                    3-  53  M  ;			messg	"Ram name has been defined!"
+                                    3-  54  M  		endif
+                                    3-  55  M  	endif
+                                    3-  56  M  endm
+                                    3-0057      
+                                    3-0058      ;--------------------------------- 
+                                    3-  59  M  newR	macro	regName
+                                    3-  60  M  		M_DynRam	regName
+                                    3-  61  M  endm
+                                    3-0062      
+                                    3-0063      ;--------------------------------- 
+                                    3-  64  M  newB	macro	bitName
+                                    3-  65  M  	if (V_BitNow>=4)
+                                    3-  66  M  		V_BitNow=0
+                                    3-  67  M  		V_BitRam=V_BitRam+1
+                                    3-  68  M  		if (V_BitRam>V_BitRamMax)
+                                    3-  69  M  			error	Bit RAM is run out ! Bit name is --> bitName
+                                    3-  70  M  		endif
+                                    3-  71  M  	endif
+                                    3-  72  M  
+                                    3-  73  M  	ifndef	bitName
+                                    3-  74  M  ;		#define		bitName		V_BitRam,V_BitNow
+                                    3-  75  M  		switch	V_BitRam
+                                    3-  76  M  			case 0x30
+                                    3-  77  M  				switch	V_BitNow
+                                    3-  78  M  					case 0
+                                    3-  79  M  						#define		bitName		0x30,0
+                                    3-  80  M  						break
+                                    3-  81  M  					case 1
+                                    3-  82  M  						#define		bitName		0x30,1
+                                    3-  83  M  						break
+                                    3-  84  M  					case 2
+                                    3-  85  M  						#define		bitName		0x30,2
+                                    3-  86  M  						break
+                                    3-  87  M  					case 3
+                                    3-  88  M  						#define		bitName		0x30,3
+                                    3-  89  M  						break
+                                    3-  90  M  				endsw
+                                    3-  91  M  				break
+                                    3-  92  M  			case 0x31
+                                    3-  93  M  				switch	V_BitNow
+                                    3-  94  M  					case 0
+                                    3-  95  M  						#define		bitName		0x31,0
+                                    3-  96  M  						break
+                                    3-  97  M  					case 1
+                                    3-  98  M  						#define		bitName		0x31,1
+                                    3-  99  M  						break
+                                    3- 100  M  					case 2
+                                    3- 101  M  						#define		bitName		0x31,2
+                                    3- 102  M  						break
+                                    3- 103  M  					case 3
+                                    3- 104  M  						#define		bitName		0x31,3
+                                    3- 105  M  						break
+                                    3- 106  M  				endsw
+                                    3- 107  M  				break
+                                    3- 108  M  			case 0x32
+                                    3- 109  M  				switch	V_BitNow
+                                    3- 110  M  					case 0
+                                    3- 111  M  						#define		bitName		0x32,0
+                                    3- 112  M  						break
+                                    3- 113  M  					case 1
+                                    3- 114  M  						#define		bitName		0x32,1
+                                    3- 115  M  						break
+                                    3- 116  M  					case 2
+                                    3- 117  M  						#define		bitName		0x32,2
+                                    3- 118  M  						break
+                                    3- 119  M  					case 3
+                                    3- 120  M  						#define		bitName		0x32,3
+                                    3- 121  M  						break
+                                    3- 122  M  				endsw
+                                    3- 123  M  				break
+                                    3- 124  M  			case 0x33
+                                    3- 125  M  				switch	V_BitNow
+                                    3- 126  M  					case 0
+                                    3- 127  M  						#define		bitName		0x33,0
+                                    3- 128  M  						break
+                                    3- 129  M  					case 1
+                                    3- 130  M  						#define		bitName		0x33,1
+                                    3- 131  M  						break
+                                    3- 132  M  					case 2
+                                    3- 133  M  						#define		bitName		0x33,2
+                                    3- 134  M  						break
+                                    3- 135  M  					case 3
+                                    3- 136  M  						#define		bitName		0x33,3
+                                    3- 137  M  						break
+                                    3- 138  M  				endsw
+                                    3- 139  M  				break
+                                    3- 140  M  			case 0x34
+                                    3- 141  M  				switch	V_BitNow
+                                    3- 142  M  					case 0
+                                    3- 143  M  						#define		bitName		0x34,0
+                                    3- 144  M  						break
+                                    3- 145  M  					case 1
+                                    3- 146  M  						#define		bitName		0x34,1
+                                    3- 147  M  						break
+                                    3- 148  M  					case 2
+                                    3- 149  M  						#define		bitName		0x34,2
+                                    3- 150  M  						break
+                                    3- 151  M  					case 3
+                                    3- 152  M  						#define		bitName		0x34,3
+                                    3- 153  M  						break
+                                    3- 154  M  				endsw
+                                    3- 155  M  				break
+                                    3- 156  M  		endsw
+                                    3- 157  M  		
+                                    3- 158  M  		V_BitNow=V_BitNow+1
+                                    3- 159  M  	else
+                                    3- 160  M  		error	Bit name has been defined ! Bit name is -->  bitName
+                                    3- 161  M  ;		messg	"bit name has been defined!"
+                                    3- 162  M  	endif
+                                    3- 163  M  
+                                    3- 164  M  endm
+                                    3-0165      ;-----------------------------------------------
+                                    3- 166  M  M_Option	macro
+                                    3- 167  M  	;-----------------------------------
+                                    3- 168  M  	; 播放命令字
+                                    3- 169  M  	;-----------------------------------
+                                    3- 170  M  	V_SelectPlay	equ		0x33
+                                    3- 171  M  	V_SelectQIO		equ		0X34
+                                    3- 172  M  	;-----------------------------------------
+                                    3- 173  M  	V_CmdPlayV		equ		0X01
+                                    3- 174  M  	V_CmdPlayMute	equ		0X02
+                                    3- 175  M  	V_CmdPlayEnd	equ		0xf
+                                    3- 176  M  	;-----------------------------------------
+                                    3- 177  M  	V_TabPlayEnd	equ		0X04
+                                    3- 178  M  	V_TabPlayOut	equ		0X05
+                                    3- 179  M  	;-----------------------------------------
+                                    3- 180  M  	V_CmdDelay		equ		0X0A
+                                    3- 181  M  	V_CmdPlayTab	equ		0X0B
+                                    3- 182  M  	;-----------------------------------------
+                                    3- 183  M  	V_TabOutput		equ		0X0C
+                                    3- 184  M  	V_CmdPlayA		equ		0X0E
+                                    3- 185  M  	;-----------------------------------------
+                                    3- 186  M  			
+                                    3- 187  M  endm
+                                    3-0188      ;-----------------------------------------------
+                                    3-0189      ; 清理所有页面的RAM
+                                    3- 190  M  M_ClearRam	macro
+                                    3- 191  M  		mpg		page_user
+                                    3- 192  M  		call	F_ClearRam
+                                    3- 193  M  		mpg		page_sys
+                                    3- 194  M  		call	F_ClearRam
+                                    3- 195  M  endm
+                                    3-0196      
+                                    3-0197      ;-----------------------------------------------
+                                    3-0198      ; 清理 HALT 标志和计时器
+                                    3- 199  M  M_Init	macro
+                                    3- 200  M  		;------------------
+                                    3- 201  M  		newR	R_PG0KeyFlagA
+                                    3- 202  M  		newR	R_PG0KeyFlagB
+                                    3- 203  M  		;------------------
+                                    3- 204  M  
+                                    3- 205  M  		mpg		page_sys
+                                    3- 206  M  		;-------------------
+                                    3- 207  M  		mvla	V_IOC_PA
+                                    3- 208  M  		mvam	paio
+                                    3- 209  M  		mvla	V_IOC_PB
+                                    3- 210  M  		mvam	pbio
+                                    3- 211  M  		;-------------------
+                                    3- 212  M  ;		mvma	pa
+                                    3- 213  M  ;		andl	V_IOC_PA
+                                    3- 214  M  ;		mvam	pa
+                                    3- 215  M  ;		mvam	R_PG0KeyFlagA
+                                    3- 216  M  ;		mvma	pb
+                                    3- 217  M  ;		andl	V_IOC_PB
+                                    3- 218  M  ;		mvam	pb
+                                    3- 219  M  ;		mvam	R_PG0KeyFlagB
+                                    3- 220  M  		
+                                    3- 221  M  		mvla	V_IOC_PA
+                                    3- 222  M  		mvam	R_PG0KeyFlagA
+                                    3- 223  M  		mvla	V_IOC_PB
+                                    3- 224  M  		mvam	R_PG0KeyFlagB
+                                    3- 225  M  		;-------------------
+                                    3- 226  M  ;		mvla	0x0
+                                    3- 227  M  ;		mvam	pa
+                                    3- 228  M  ;		mvam	pb
+                                    3- 229  M  		;-------------------
+                                    3- 230  M  		mvla	0x0			; 计时器 0.125ms 
+                                    3- 231  M  		mvam	bt
+                                    3- 232  M  endm
+                                    3-0233      
+                                    3-0234      ;-----------------------------------------------
+                                    3-0235      ; 清理 HALT 标志和计时器
+                                    3-0236      ;M_WakeUp	macro
+                                    3-0237      ;		;------------------
+                                    3-0238      ;		newR	R_PG0HaltTime0
+                                    3-0239      ;		newR	R_PG0HaltTime1
+                                    3-0240      ;		newR	B_PG0HaltFlag
+                                    3-0241      ;		;------------------
+                                    3-0242      ;
+                                    3-0243      ;		MPG		page_sys
+                                    3-0244      ;		mvla	0x0
+                                    3-0245      ;		mvam	R_PG0HaltTime0
+                                    3-0246      ;		mvam	R_PG0HaltTime1
+                                    3-0247      ;		rstb	B_PG0HaltFlag
+                                    3-0248      ;endm
+                                    3-0249      
+                                    3-0250      
+                                    3-0251      
+                                    3-0252      ;-----------------------------------------------
+                                    3-0253      ; 清理 HALT 标志和计时器
+                                    3- 254  M  M_ClrHalt	macro	returnMain
+                                    3- 255  M  		;------------------
+                                    3- 256  M  ;		newR	R_PG0HaltTime0
+                                    3- 257  M  ;		newR	R_PG0HaltTime1
+                                    3- 258  M  ;		newB	B_PG0HaltFlag
+                                    3- 259  M  		;------------------
+                                    3- 260  M  
+                                    3- 261  M  		MPG		page_sys
+                                    3- 262  M  		mvla	0x0
+                                    3- 263  M  		mvam	R_PG0HaltTime0
+                                    3- 264  M  		mvam	R_PG0HaltTime1
+                                    3- 265  M  		rstb	B_PG0HaltFlag
+                                    3- 266  M  		jmp		returnMain
+                                    3- 267  M  endm
+                                    3-0268      
+                                    3-0269      
+                                    3-0270      
+                                    3-0271      ;-----------------------------------------------
+                                    3-0272      ; 睡眠前处理
+                                    3-0273      ;-----------------------------------------------
+                                    3- 274  M  M_GotoSleep	macro
+                                    3- 275  M  		;------------------
+                                    3- 276  M  ;		newR	R_PG0HaltTime0
+                                    3- 277  M  ;		newR	R_PG0HaltTime1
+                                    3- 278  M  ;		newB	B_PG0HaltFlag
+                                    3- 279  M  		;------------------
+                                    3- 280  M  		mpg		page_sys
+                                    3- 281  M  		mvla	0x0
+                                    3- 282  M  		mvam	R_PG0HaltTime0
+                                    3- 283  M  		mvam	R_PG0HaltTime1
+                                    3- 284  M  		rstB	B_PG0HaltFlag
+                                    3- 285  M          ;------------
+                                    3- 286  M  		mvma	pa
+                                    3- 287  M          mvam	pa
+                                    3- 288  M          mvma	pb
+                                    3- 289  M          mvam	pb
+                                    3- 290  M  endm
+                                    3-0291      
+                                    3-0292      ;--------------------------------------
+                                    3- 293  M  M_ClrBTFlag	macro
+                                    3- 294  M  		mvla	0x4
+                                    3- 295  M  		mvam	sfr
+                                    3- 296  M  endm
+                                    3-0297      ;--------------------------------------
+                                    3-0298      ; 功能：
+                                    3-0299      ;	分频，计时
+                                    3-0300      ;	此计时器使用的是125us计时
+                                    3- 301  M  M_Timer macro
+                                    3- 302  M  	local	L_Timer_125us,L_Timer_4Ms,L_Timer_8Ms,L_NotPlayMute,L_NotHaltFlag,L_Timer_End
+                                    3- 303  M  		;---------------
+                                    3- 304  M  		newR	R_PG0KeyDelayA
+                                    3- 305  M  		newR	R_PG0KeyDelayB
+                                    3- 306  M  		newR	R_PG0MuteTimer0
+                                    3- 307  M  		newR	R_PG0MuteTimer1
+                                    3- 308  M  		newR	R_PG0MuteTimer2
+                                    3- 309  M  		newR	R_PG0HaltTime0
+                                    3- 310  M  		newR	R_PG0HaltTime1
+                                    3- 311  M  		newR	R_PG0BTInc
+                                    3- 312  M  		
+                                    3- 313  M  ;		newB	B_PG0125us
+                                    3- 314  M  ;		newB	B_PG02ms
+                                    3- 315  M  		newB	B_PG04ms
+                                    3- 316  M  		newB	B_PG08ms
+                                    3- 317  M  		newB	B_PG0HaltFlag
+                                    3- 318  M  		;---------------
+                                    3- 319  M  		mpg		Page_sys
+                                    3- 320  M  		jnb		B_BTF,L_Timer_End
+                                    3- 321  M  		;-----------------------------------------
+                                    3- 322  M  		M_ClrBTFlag
+                                    3- 323  M  	;-------------------------------------------------------
+                                    3- 324  M  	;into one time for 0.125ms
+                                    3- 325  M  	;-------------------------------------------------------
+                                    3- 326  M  	L_Timer_125us:
+                                    3- 327  M  		mpg		page_user
+                                    3- 328  M  		;-----------------------------------------
+                                    3- 329  M  		Block_125us
+                                    3- 330  M  		;-----------------------------------------
+                                    3- 331  M  		mpg		Page_sys
+                                    3- 332  M  		incm	R_PG0BTInc
+                                    3- 333  M  		mvam	R_PG0BTInc
+                                    3- 334  M  		jnc		L_Timer_End
+                                    3- 335  M  	;-------------------------------------------------------
+                                    3- 336  M  	;into one time for 2ms
+                                    3- 337  M  	;-------------------------------------------------------
+                                    3- 338  M  	L_Timer_2Ms:
+                                    3- 339  M  		mpg		page_user
+                                    3- 340  M  		;-----------------------------------------
+                                    3- 341  M  		Block_2ms
+                                    3- 342  M  		;-----------------------------------------
+                                    3- 343  M  		mpg		Page_sys
+                                    3- 344  M  		xorB	B_PG04ms
+                                    3- 345  M  		;-----------------------------------------
+                                    3- 346  M  		jb		B_PG04ms,L_Timer_End
+                                    3- 347  M  	;-------------------------------------------------------
+                                    3- 348  M  	;into one time for 4ms
+                                    3- 349  M  	;-------------------------------------------------------
+                                    3- 350  M  	L_Timer_4Ms:
+                                    3- 351  M  		mpg		page_user
+                                    3- 352  M  		;-----------------------------------------
+                                    3- 353  M  		Block_4ms
+                                    3- 354  M  		;-----------------------------------------
+                                    3- 355  M  		mpg		Page_sys
+                                    3- 356  M  		xorB	B_PG08ms
+                                    3- 357  M  		;-----------------------------------------
+                                    3- 358  M  		jb		B_PG08ms,L_Timer_End
+                                    3- 359  M  	;-------------------------------------------------------
+                                    3- 360  M  	;into one time for 8ms
+                                    3- 361  M  	;-------------------------------------------------------
+                                    3- 362  M  	L_Timer_8Ms:
+                                    3- 363  M  		mpg		page_user
+                                    3- 364  M  		;-----------------------------------------
+                                    3- 365  M  		Block_8ms
+                                    3- 366  M  		;-----------------------------------------
+                                    3- 367  M  		mpg		Page_sys
+                                    3- 368  M  		incm	R_PG0KeyDelayA
+                                    3- 369  M  		mvam	R_PG0KeyDelayA
+                                    3- 370  M  		incm	R_PG0KeyDelayB
+                                    3- 371  M  		mvam	R_PG0KeyDelayB
+                                    3- 372  M  		;-----------------------------------------
+                                    3- 373  M  		jz_3m	R_PG0MuteTimer2,R_PG0MuteTimer1,R_PG0MuteTimer0,L_NotPlayMute
+                                    3- 374  M  		dec_3m	R_PG0MuteTimer2,R_PG0MuteTimer1,R_PG0MuteTimer0
+                                    3- 375  M  		;-----------------------------------------
+                                    3- 376  M  	L_NotPlayMute:
+                                    3- 377  M  		nop
+                                    3- 378  M  		inc_2m	R_PG0HaltTime1,R_PG0HaltTime0
+                                    3- 379  M  		nop
+                                    3- 380  M  		jnc		L_NotHaltFlag
+                                    3- 381  M  		nop
+                                    3- 382  M  		setb	B_PG0HaltFlag
+                                    3- 383  M  		;-----------------------------------------
+                                    3- 384  M  	L_NotHaltFlag:
+                                    3- 385  M  		;-----------------------------------------
+                                    3- 386  M  	L_Timer_End:
+                                    3- 387  M  		endm
+                                    3-0388      
+                                    3-0389      
+                                    0-0016      #include		"SystemFiles\playV.asm"
+                                    4-0001      ; =========================================================================
+                                    4-0002      ; Created by NYIDE.
+                                    4-0003      ; User: CaiJinJu
+                                    4-0004      ; Date: 3/21/2017
+                                    4-0005      ; Time: 5:12 PM
+                                    4-0006      ; =========================================================================
+                                    4-0007      
+                                    4-0008      ;===================================================
+                                    4-0009      ; 播放功能MACRO
+                                    4-  10  M  M_PlayFunction	macro
+                                    4-  11  M  	local	L_StartPlay,L_PlayVoice,L_PlayVoiceStart,L_CheckPlayEnd,L_CheckVoiceEnd,L_CheckRepeat,L_CheckMuteEnd,L_PlayMute,L_PlayOver,L_cjjExit
+                                    4-  12  M  		;------------------------
+                                    4-  13  M  		newR	R_PG0Temp0
+                                    4-  14  M  ;		newR	R_PG0SampleRateL
+                                    4-  15  M  ;		newR	R_PG0SampleRateH
+                                    4-  16  M  		newR	R_PG0FGRepeat
+                                    4-  17  M  ;		newR	R_PG0MuteTimer0
+                                    4-  18  M  ;		newR	R_PG0MuteTimer1
+                                    4-  19  M  ;		newR	R_PG0MuteTimer2
+                                    4-  20  M  
+                                    4-  21  M  ;		newB	B_PG0PlayStart
+                                    4-  22  M  		newB	B_PG0PlayFlag
+                                    4-  23  M  		newB	B_PG0PlayMute
+                                    4-  24  M  		;------------------------
+                                    4-  25  M  
+                                    4-  26  M  		mpg		page_sys
+                                    4-  27  M  		;-----------------------------------------
+                                    4-  28  M  		jb		B_PG0PlayStart,L_StartPlay		; 跳至开始播放处理
+                                    4-  29  M  		jb		B_PG0PlayFlag,L_CheckPlayEnd	; 跳至播放中处理，检测是否播放完毕
+                                    4-  30  M  		jmp		L_cjjExit									; 退出
+                                    4-  31  M  		
+                                    4-  32  M  	;-----------------------------------------
+                                    4-  33  M  	L_StartPlay: ; 开始播放
+                                    4-  34  M  		nop
+                                    4-  35  M  		setB	B_PG0PlayFlag 				; 设置为播放状 
+                                    4-  36  M  		rstB	B_PG0PlayStart             ; 关闭开始状态
+                                    4-  37  M  		;-----------------------------------------
+                                    4-  38  M  		M_LoadFGTabAddr										; 检测命令字
+                                    4-  39  M  		;-----------------------------------------
+                                    4-  40  M  		rbro	1
+                                    4-  41  M  		mvam	R_PG0Temp0									; 加载数据，检测最低位
+                                    4-  42  M  		;-----------------------------------------
+                                    4-  43  M  ;		mvma	rod2
+                                    4-  44  M  ;		andl	b'0011'
+                                    4-  45  M  		cje_al	V_CmdPlayMute,L_PlayMute					; 跳至处理静音（待完善）
+                                    4-  46  M  		cje_al	V_CmdPlayV,L_PlayVoice						; 跳至处理声音
+                                    4-  47  M  		;-----------------------------------------
+                                    4-  48  M  		jmp		L_PlayOver
+                                    4-  49  M  		
+                                    4-  50  M  	L_PlayVoice:
+                                    4-  51  M  		rbro	1
+                                    4-  52  M  		mvam	R_PG1VoiceAddr0
+                                    4-  53  M  		mvma	rod1
+                                    4-  54  M  		mvam	R_PG1VoiceAddr1
+                                    4-  55  M  		;-----------------------------------------
+                                    4-  56  M  		rbro	1
+                                    4-  57  M  		mvam	R_PG1VoiceAddr2
+                                    4-  58  M  		mvma	rod1
+                                    4-  59  M  		mvam	R_PG1VoiceAddr3
+                                    4-  60  M  		;-----------------------------------------
+                                    4-  61  M  		rbro	1
+                                    4-  62  M  		mvam	R_PG1VoiceAddr4
+                                    4-  63  M  		;-----------------------------------------
+                                    4-  64  M  		; 暂存SR
+                                    4-  65  M  		rbro	1
+                                    4-  66  M  		mvam	R_PG0SampleRateL
+                                    4-  67  M  		mvma	rod1
+                                    4-  68  M  		mvam	R_PG0SampleRateH  ;;sample rate.
+                                    4-  69  M  		;-----------------------------------------
+                                    4-  70  M  		; 设置播放重复数 R_PG0FGRepeat
+                                    4-  71  M  		rbro	1
+                                    4-  72  M  		mvam	R_PG0FGRepeat
+                                    4-  73  M  		;-----------------------------------------
+                                    4-  74  M  		M_SaveFGTabAddr
+                                    4-  75  M  		;-----------------------------------------
+                                    4-  76  M  	L_PlayVoiceStart:
+                                    4-  77  M  		mvmr	(R_PG0SampleRateL&0X0F),rpt0
+                                    4-  78  M  		mvmr	(R_PG0SampleRateH&0X0F),rpt1	; 加载采样率
+                                    4-  79  M  		ldtm
+                                    4-  80  M  		;-----------------------------------------
+                                    4-  81  M  		mvmr	(R_PG1VoiceAddr0&0X0F),rpt0
+                                    4-  82  M  		mvmr	(R_PG1VoiceAddr1&0X0F),rpt1
+                                    4-  83  M  		mvmr	(R_PG1VoiceAddr2&0X0F),rpt2
+                                    4-  84  M  		mvmr	(R_PG1VoiceAddr3&0X0F),rpt3
+                                    4-  85  M  		mvma	R_PG1VoiceAddr4
+                                    4-  86  M  		mvam	rpt4
+                                    4-  87  M  		;-----------------------------------------
+                                    4-  88  M  		play
+                                    4-  89  M  		;-----------------------------------------
+                                    4-  90  M  		jmp		L_cjjExit
+                                    4-  91  M  		
+                                    4-  92  M  	;-----------------------------------------
+                                    4-  93  M  	L_CheckPlayEnd:
+                                    4-  94  M  		jb		B_PG0PlayMute,L_CheckMuteEnd
+                                    4-  95  M  		
+                                    4-  96  M  	L_CheckVoiceEnd:
+                                    4-  97  M  		jb		B_PFLG,L_cjjExit
+                                    4-  98  M  		;-----------------------------------------
+                                    4-  99  M  	L_CheckRepeat:
+                                    4- 100  M  		decm	R_PG0FGRepeat
+                                    4- 101  M  		mvam	R_PG0FGRepeat
+                                    4- 102  M  		jnz		L_PlayVoiceStart
+                                    4- 103  M  		
+                                    4- 104  M  		jmp		L_StartPlay
+                                    4- 105  M  		
+                                    4- 106  M  	L_CheckMuteEnd:
+                                    4- 107  M  		jz_3m	R_PG0MuteTimer2,R_PG0MuteTimer1,R_PG0MuteTimer0,L_cjjExit
+                                    4- 108  M  		nop
+                                    4- 109  M  		rstb	B_PG0PlayMute
+                                    4- 110  M  		jmp		L_StartPlay
+                                    4- 111  M  	;-----------------------------------------
+                                    4- 112  M  		
+                                    4- 113  M  		
+                                    4- 114  M  	L_PlayMute:
+                                    4- 115  M  		nop
+                                    4- 116  M  		SETB	B_PG0PlayMute
+                                    4- 117  M  		;-----------------------------------------
+                                    4- 118  M  		rbro	1
+                                    4- 119  M  		mvam	R_PG0MuteTimer0
+                                    4- 120  M  		mvma	rod1
+                                    4- 121  M  		mvam	R_PG0MuteTimer1
+                                    4- 122  M  		;-----------------------------------------
+                                    4- 123  M  		rbro	1
+                                    4- 124  M  		mvam	R_PG0MuteTimer2
+                                    4- 125  M  		;-----------------------------------------
+                                    4- 126  M  		M_SaveFGTabAddr
+                                    4- 127  M  		;-----------------------------------------
+                                    4- 128  M  		jmp		L_cjjExit
+                                    4- 129  M  		
+                                    4- 130  M  	L_PlayOver:
+                                    4- 131  M  		;-----------------------------------------
+                                    4- 132  M  		mvla	0X0
+                                    4- 133  M  		mvam	rpt0
+                                    4- 134  M  		mvam	rpt1
+                                    4- 135  M  		;-----------------------------------------
+                                    4- 136  M  		ldtm
+                                    4- 137  M  		stop
+                                    4- 138  M  		;-----------------------------------------
+                                    4- 139  M  ;		mvla	0X0
+                                    4- 140  M  ;		mvam	R_PG1PlayFlag
+                                    4- 141  M  		rstB	B_PG0PlayFlag
+                                    4- 142  M  ;		rstB	B_PG0PlayMute
+                                    4- 143  M  ;		rstB	B_PG0PlayStart
+                                    4- 144  M  		;-----------------------------------------
+                                    4- 145  M  		jmp		L_cjjExit
+                                    4- 146  M  		
+                                    4- 147  M  	;-----------------------------------------
+                                    4- 148  M  	L_cjjExit:
+                                    4- 149  M  		mpg		page_User
+                                    4- 150  M  endm
+                                    4-0151      
+                                    4-0152      ;==========================================================================
+                                    4- 153  M  M_SaveFGTabAddr	macro
+                                    4- 154  M  		mpg		page_sys
+                                    4- 155  M  		;-----------------------------------------
+                                    4- 156  M  		mvrm	(R_PG1FGTabAddr0&0XF),rpt0
+                                    4- 157  M  		mvrm	(R_PG1FGTabAddr1&0XF),rpt1
+                                    4- 158  M  		mvrm	(R_PG1FGTabAddr2&0XF),rpt2
+                                    4- 159  M  		mvrm	(R_PG1FGTabAddr3&0XF),rpt3
+                                    4- 160  M  		;-----------------------------------------
+                                    4- 161  M  	endm
+                                    4-0162      
+                                    4-0163      
+                                    4-0164      ;===================================================
+                                    4- 165  M  M_LoadFGTabAddr macro
+                                    4- 166  M  		mpg		page_sys
+                                    4- 167  M  		;-----------------------------------------
+                                    4- 168  M  		mvmr	(R_PG1FGTabAddr0&0XF),rpt0
+                                    4- 169  M  		mvmr	(R_PG1FGTabAddr1&0XF),rpt1
+                                    4- 170  M  		mvmr	(R_PG1FGTabAddr2&0XF),rpt2
+                                    4- 171  M  		mvmr	(R_PG1FGTabAddr3&0XF),rpt3
+                                    4- 172  M  		mvla	0X0
+                                    4- 173  M  		mvam	rpt4
+                                    4- 174  M  		;-----------------------------------------
+                                    4- 175  M  		endm
+                                    4-0176      ;===================================================
+                                    4-0177      ; 播放序列
+                                    4- 178  M  playList	macro	voiceLabel
+                                    4- 179  M  		newB	B_PG0PlayStart
+                                    4- 180  M  		mpg		page_sys
+                                    4- 181  M  		;-----------------------------------------
+                                    4- 182  M  		mvla	low0 voiceLabel
+                                    4- 183  M  		mvam	R_PG1FGTabAddr0
+                                    4- 184  M  		mvla	low1 voiceLabel
+                                    4- 185  M  		mvam	R_PG1FGTabAddr1
+                                    4- 186  M  		mvla	mid0 voiceLabel
+                                    4- 187  M  		mvam	R_PG1FGTabAddr2
+                                    4- 188  M  		mvla	mid1 voiceLabel
+                                    4- 189  M  		mvam	R_PG1FGTabAddr3
+                                    4- 190  M  		;----------------------
+                                    4- 191  M  		setB	B_PG0PlayStart
+                                    4- 192  M  		;----------------------
+                                    4- 193  M  		mpg		page_User
+                                    4- 194  M  	endm
+                                    4-0195      
+                                    4-0196      ;===================================================
+                                    4-0197      ; 播放静音
+                                    4- 198  M  MuteMake	macro	delayTime
+                                    4- 199  M  		;-----------------------------------------
+                                    4- 200  M  		DW	(V_SelectPlay<<4)|V_CmdPlayMute
+                                    4- 201  M  		;-----------------------------------------
+                                    4- 202  M  		DW	Low (delayTime/8)
+                                    4- 203  M  		DW	Mid0 (delayTime/8)
+                                    4- 204  M  ;		DW	High0 (delayTime/8)
+                                    4- 205  M  		;-----------------------------------------
+                                    4- 206  M  	endm
+                                    4-0207      	
+                                    4-0208      ;===================================================
+                                    4- 209  M  VoiceMake@N	macro	voiceLabel,SR,repeatData
+                                    4- 210  M  		;-----------------------------------------
+                                    4- 211  M  		DW	(V_SelectPlay<<4)|V_CmdPlayV
+                                    4- 212  M  		;-----------------------------------------
+                                    4- 213  M  		DW	Low voiceLabel
+                                    4- 214  M  		DW	Mid voiceLabel
+                                    4- 215  M  		DW	High0 voiceLabel
+                                    4- 216  M  		;-----------------------------------------
+                                    4- 217  M  		DW	D'1000000'/SR -1
+                                    4- 218  M  		;-----------------------------------------
+                                    4- 219  M  		dw	Low0 repeatData
+                                    4- 220  M  	endm
+                                    4-0221      
+                                    4-0222      ;===================================================
+                                    4- 223  M  VoiceMake	macro	voiceLabel,SR
+                                    4- 224  M  		VoiceMake@N	voiceLabel,SR,0x1
+                                    4- 225  M  	endm
+                                    4-0226      
+                                    4-0227      ;===================================================
+                                    4- 228  M  ListEnd		macro
+                                    4- 229  M  		DW	(V_SelectPlay<<4)|V_CmdPlayEnd
+                                    4- 230  M  endm
+                                    4-0231      ;===================================================
+                                    4-0232      
+                                    4-0233      
+                                    4-0234      
+                                    0-0017      #include		"SystemFiles\keyscan.asm"
+                                    5-0001      ; =========================================================================
+                                    5-0002      ; Created by NYIDE.
+                                    5-0003      ; User: CaiJinJu
+                                    5-0004      ; Date: 4/21/2017
+                                    5-0005      ; Time: 3:46 PM
+                                    5-0006      ; =========================================================================
+                                    5-0007      
+                                    5-0008      ;===========================================
+                                    5-0009      ; PA口输入检测
+                                    5-0010      ;===========================================
+                                    5-  11  M  M_CheckPortA	macro
+                                    5-  12  M  	local	L_ExitIOA,L_ScanPortA,L_ClrHaltFlagA,L_CheckPortAOK
+                                    5-  13  M  ;		newR	R_PG0KeyFlagA
+                                    5-  14  M  		newR	R_PG0KeyBufferA
+                                    5-  15  M  ;		newR	R_PG0KeyDelayA
+                                    5-  16  M  		newR	R_PG0KeyRising
+                                    5-  17  M  		newR	R_PG0KeyFalling
+                                    5-  18  M  ;		newR	R_PG0HaltTime0
+                                    5-  19  M  ;		newR	R_PG0HaltTime1
+                                    5-  20  M  ;		newB	B_PG0HaltFlag
+                                    5-  21  M  
+                                    5-  22  M  		mpg		page_sys
+                                    5-  23  M  		;-----------------------------------------
+                                    5-  24  M  		mvma	pa
+                                    5-  25  M  		andl	V_IOC_PA
+                                    5-  26  M  		xorm	R_PG0KeyFlagA
+                                    5-  27  M  		jz		L_ExitIOA
+                                    5-  28  M  		mvma	pa
+                                    5-  29  M  		andl	V_IOC_PA
+                                    5-  30  M  		xorm	R_PG0KeyBufferA
+                                    5-  31  M  		jz		L_ScanPortA
+                                    5-  32  M  		mvma	pa
+                                    5-  33  M  		andl	V_IOC_PA
+                                    5-  34  M  		mvam	R_PG0KeyBufferA
+                                    5-  35  M  	L_ExitIOA:
+                                    5-  36  M  		mvla	0x0
+                                    5-  37  M  		mvam	R_PG0KeyDelayA
+                                    5-  38  M  		jmp		L_CheckPortAOK
+                                    5-  39  M  		
+                                    5-  40  M  	;-------------------------------
+                                    5-  41  M  	L_ScanPortA:
+                                    5-  42  M  		mvma	R_PG0KeyDelayA
+                                    5-  43  M  		andl	b'0010'
+                                    5-  44  M  		jz		L_ClrHaltFlagA
+                                    5-  45  M  		;-------------------------------
+                                    5-  46  M  		mvla	0x0
+                                    5-  47  M  		mvam	R_PG0KeyDelayA
+                                    5-  48  M  		;-------------------------------
+                                    5-  49  M  		mvma	R_PG0KeyBufferA
+                                    5-  50  M  		xorm	R_PG0KeyFlagA
+                                    5-  51  M  		andm	R_PG0KeyBufferA
+                                    5-  52  M  		mvam	R_PG0KeyRising
+                                    5-  53  M  		;-------------------------------
+                                    5-  54  M  		mvma	R_PG0KeyBufferA
+                                    5-  55  M  		xorm	R_PG0KeyFlagA
+                                    5-  56  M  		andm	R_PG0KeyFlagA
+                                    5-  57  M  		mvam	R_PG0KeyFalling
+                                    5-  58  M  		;-------------------------------
+                                    5-  59  M  		mvma	R_PG0KeyBufferA
+                                    5-  60  M  		mvam	R_PG0KeyFlagA
+                                    5-  61  M  		;-------------------------------
+                                    5-  62  M  		mpg		page_user
+                                    5-  63  M  		jb		R_PG0KeyFalling,0,L_KeyPA0Falling
+                                    5-  64  M  		jb		R_PG0KeyFalling,1,L_KeyPA1Falling
+                                    5-  65  M  		jb		R_PG0KeyFalling,2,L_KeyPA2Falling
+                                    5-  66  M  		jb		R_PG0KeyFalling,3,L_KeyPA3Falling
+                                    5-  67  M  		;-------------------------------
+                                    5-  68  M  		jb		R_PG0KeyRising,0,L_KeyPA0Rising
+                                    5-  69  M  		jb		R_PG0KeyRising,1,L_KeyPA1Rising
+                                    5-  70  M  		jb		R_PG0KeyRising,2,L_KeyPA2Rising
+                                    5-  71  M  		jb		R_PG0KeyRising,3,L_KeyPA3Rising
+                                    5-  72  M  		;-------------------------------
+                                    5-  73  M  	L_ClrHaltFlagA:
+                                    5-  74  M  		mpg		page_sys
+                                    5-  75  M  		mvla	0x0
+                                    5-  76  M  		mvam	R_PG0HaltTime0
+                                    5-  77  M  		mvam	R_PG0HaltTime1
+                                    5-  78  M  		;-------------------------------
+                                    5-  79  M  		rstb	B_PG0HaltFlag
+                                    5-  80  M  		;-------------------------------
+                                    5-  81  M  	L_CheckPortAOK:
+                                    5-  82  M  endm
+                                    5-0083      
+                                    5-0084      	
+                                    5-0085      ;===========================================
+                                    5-0086      ; PB口输入检测
+                                    5-0087      ;===========================================
+                                    5-  88  M  M_CheckPortB	macro
+                                    5-  89  M  	local	L_ExitIOB,L_ScanPortB,L_ClrHaltFlagB,L_CheckPortBOK
+                                    5-  90  M  ;		newR	R_PG0KeyFlagB
+                                    5-  91  M  		newR	R_PG0KeyBufferB
+                                    5-  92  M  ;		newR	R_PG0KeyDelayB
+                                    5-  93  M  		newR	R_PG0KeyRising
+                                    5-  94  M  		newR	R_PG0KeyFalling
+                                    5-  95  M  ;		newR	R_PG0HaltTime0
+                                    5-  96  M  ;		newR	R_PG0HaltTime1
+                                    5-  97  M  ;		newB	B_PG0HaltFlag
+                                    5-  98  M  
+                                    5-  99  M  		mpg		page_sys
+                                    5- 100  M  		;-----------------------------------------
+                                    5- 101  M  		mvma	pb
+                                    5- 102  M  		andl	V_IOC_PB
+                                    5- 103  M  		xorm	R_PG0KeyFlagB
+                                    5- 104  M  		jz		L_ExitIOB
+                                    5- 105  M  		mvma	pb
+                                    5- 106  M  		andl	V_IOC_PB
+                                    5- 107  M  		xorm	R_PG0KeyBufferB
+                                    5- 108  M  		jz		L_ScanPortB
+                                    5- 109  M  		mvma	pb
+                                    5- 110  M  		andl	V_IOC_PB
+                                    5- 111  M  		mvam	R_PG0KeyBufferB
+                                    5- 112  M  	L_ExitIOB:
+                                    5- 113  M  		mvla	0x0
+                                    5- 114  M  		mvam	R_PG0KeyDelayB
+                                    5- 115  M  		jmp		L_CheckPortBOK
+                                    5- 116  M  		
+                                    5- 117  M  	;-------------------------------
+                                    5- 118  M  	L_ScanPortB:
+                                    5- 119  M  		mvma	R_PG0KeyDelayB
+                                    5- 120  M  		andl	b'0010'
+                                    5- 121  M  		jz		L_ClrHaltFlagB
+                                    5- 122  M  		;-------------------------------
+                                    5- 123  M  		mvla	0x0
+                                    5- 124  M  		mvam	R_PG0KeyDelayB
+                                    5- 125  M  		;-------------------------------
+                                    5- 126  M  		mvma	R_PG0KeyBufferB
+                                    5- 127  M  		xorm	R_PG0KeyFlagB
+                                    5- 128  M  		andm	R_PG0KeyBufferB
+                                    5- 129  M  		mvam	R_PG0KeyRising
+                                    5- 130  M  		;-------------------------------
+                                    5- 131  M  		mvma	R_PG0KeyBufferB
+                                    5- 132  M  		xorm	R_PG0KeyFlagB
+                                    5- 133  M  		andm	R_PG0KeyFlagB
+                                    5- 134  M  		mvam	R_PG0KeyFalling
+                                    5- 135  M  		;-------------------------------
+                                    5- 136  M  		mvma	R_PG0KeyBufferB
+                                    5- 137  M  		mvam	R_PG0KeyFlagB
+                                    5- 138  M  		;-------------------------------
+                                    5- 139  M  		mpg		page_user
+                                    5- 140  M  		jb		R_PG0KeyFalling,0,L_KeyPB0Falling
+                                    5- 141  M  		jb		R_PG0KeyFalling,1,L_KeyPB1Falling
+                                    5- 142  M  		jb		R_PG0KeyFalling,2,L_KeyPB2Falling
+                                    5- 143  M  		jb		R_PG0KeyFalling,3,L_KeyPB3Falling
+                                    5- 144  M  		;-------------------------------
+                                    5- 145  M  		jb		R_PG0KeyRising,0,L_KeyPB0Rising
+                                    5- 146  M  		jb		R_PG0KeyRising,1,L_KeyPB1Rising
+                                    5- 147  M  		jb		R_PG0KeyRising,2,L_KeyPB2Rising
+                                    5- 148  M  		jb		R_PG0KeyRising,3,L_KeyPB3Rising
+                                    5- 149  M  		;-------------------------------
+                                    5- 150  M  	L_ClrHaltFlagB:
+                                    5- 151  M  		mpg		page_sys
+                                    5- 152  M  		mvla	0x0
+                                    5- 153  M  		mvam	R_PG0HaltTime0
+                                    5- 154  M  		mvam	R_PG0HaltTime1
+                                    5- 155  M  		;-------------------------------
+                                    5- 156  M  		rstb	B_PG0HaltFlag
+                                    5- 157  M  		;-------------------------------
+                                    5- 158  M  	L_CheckPortBOK:
+                                    5- 159  M  endm
+                                    5-0160      		
+                                    5-0161      
+                                    5-0162      
+                                    5-0163      ;===========================================
+                                    5- 164  M  M_CheckPort		macro
+                                    5- 165  M  ;		M_CheckPortA
+                                    5- 166  M  		M_CheckPortB
+                                    5- 167  M  endm
+                                    5-0168      
+                                    0-0018      #include		"UserFiles\UserMacro.asm"
+                                    6-0001      ; =========================================================================
+                                    6-0002      ; Created by NYIDE.
+                                    6-0003      ; User: CaiJinJu
+                                    6-0004      ; Date: 4/24/2017
+                                    6-0005      ; Time: 4:12 PM
+                                    6-0006      ; =========================================================================
+                                    6-0007      ;----------------------------------
+                                    6-   8  M  PathEnd	macro
+                                    6-   9  M  		jmp		L_MainLoop
+                                    6-  10  M  endm
+                                    6-0011      ;----------------------------------
+                                    6-  12  M  Block_Option	macro
+                                    6-  13  M  	;-----------------------------------
+                                    6-  14  M  	; IO口输入输出设置
+                                    6-  15  M  	;-----------------------------------
+                                    6-  16  M  	V_IOC_PA		equ		b'0000'
+                                    6-  17  M  	V_IOC_PB		equ		b'1011'
+                                    6-  18  M  	
+                                    6-  19  M  	#define		B_IO_Motor1		pa,3
+                                    6-  20  M  	#define		B_IO_Motor2		pa,2
+                                    6-  21  M  	#define		B_IO_Led1		pa,0
+                                    6-  22  M  	#define		B_IO_Led2		pa,1
+                                    6-  23  M  	#define		B_IO_Send		pb,2
+                                    6-  24  M  	
+                                    6-  25  M  endm
+                                    6-0026      ;----------------------------------
+                                    6-  27  M  Block_Init	macro
+                                    6-  28  M  
+                                    6-  29  M  endm
+                                    6-0030      ;----------------------------------
+                                    6-  31  M  Block_PowerOn	macro
+                                    6-  32  M  		playList	pl0
+                                    6-  33  M  
+                                    6-  34  M  endm
+                                    6-0035      ;----------------------------------
+                                    6-  36  M  Block_PlayOver	macro	returnLoop
+                                    6-  37  M  
+                                    6-  38  M  endm
+                                    6-0039      ;----------------------------------
+                                    6-  40  M  Block_BeforeSleep	macro
+                                    6-  41  M  
+                                    6-  42  M  endm
+                                    6-0043      ;----------------------------------
+                                    6-  44  M  Block_Loop	macro
+                                    6-  45  M  
+                                    6-  46  M  endm
+                                    6-0047      ;----------------------------------
+                                    6-  48  M  Block_125us	macro
+                                    6-  49  M  		
+                                    6-  50  M  endm
+                                    6-0051      ;----------------------------------
+                                    6-  52  M  Block_2ms	macro
+                                    6-  53  M  		
+                                    6-  54  M  endm
+                                    6-0055      ;----------------------------------
+                                    6-0056      ;----------------------------------
+                                    6-  57  M  Block_4ms	macro
+                                    6-  58  M  		
+                                    6-  59  M  endm
+                                    6-0060      ;----------------------------------
+                                    6-  61  M  Block_8ms	macro
+                                    6-  62  M  		
+                                    6-  63  M  endm
+                                    6-0064      ;----------------------------------
+                                    6-  65  M  Block_PlayList	macro
+                                    6-  66  M  	pl0:
+                                    6-  67  M  		VoiceMake	L_SPH_0,d'12000'
+                                    6-  68  M  		;----------------------
+                                    6-  69  M  		ListEnd
+                                    6-  70  M  	;-----------------------------------------
+                                    6-  71  M  ;	pl1:
+                                    6-  72  M  ;		VoiceMake@N	L_SPH_0,d'9000',2
+                                    6-  73  M  ;		;----------------------
+                                    6-  74  M  ;;		MuteMake	d'200'
+                                    6-  75  M  ;		;----------------------
+                                    6-  76  M  ;		VoiceMake@N	L_SPH_0,d'8000',3
+                                    6-  77  M  ;		VoiceMake	L_SPH_1,d'8000'
+                                    6-  78  M  ;		VoiceMake@N	L_SPH_1,d'9000',5
+                                    6-  79  M  ;;		VoiceMake	v06,d'8000'
+                                    6-  80  M  ;;		VoiceMake	v07,d'8000'
+                                    6-  81  M  ;		;----------------------
+                                    6-  82  M  ;		ListEnd
+                                    6-  83  M  ;	;-----------------------------------------
+                                    6-  84  M  ;	pl_chongzhi:
+                                    6-  85  M  ;		VoiceMake	L_SPH_0,d'8300'
+                                    6-  86  M  ;		;----------------------
+                                    6-  87  M  ;		ListEnd
+                                    6-  88  M  ;	;-----------------------------------------
+                                    6-  89  M  ;	pl_huanhu:
+                                    6-  90  M  ;		VoiceMake	L_SPH_1,d'8000'
+                                    6-  91  M  ;		;----------------------
+                                    6-  92  M  ;		ListEnd
+                                    6-  93  M  ;	;-----------------------------------------
+                                    6-  94  M  ;	pl_kaiji:
+                                    6-  95  M  ;		VoiceMake	L_SPH_2,d'16000'
+                                    6-  96  M  ;		;----------------------
+                                    6-  97  M  ;		ListEnd
+                                    6-  98  M  ;	;-----------------------------------------
+                                    6-  99  M  ;	pl_yinxiao1:
+                                    6- 100  M  ;		VoiceMake	L_SPH_3,d'16000'
+                                    6- 101  M  ;		;----------------------
+                                    6- 102  M  ;		ListEnd
+                                    6- 103  M  ;	;-----------------------------------------
+                                    6- 104  M  ;	pl_yinxiao2:
+                                    6- 105  M  ;		VoiceMake	L_SPH_4,d'16000'
+                                    6- 106  M  ;		;----------------------
+                                    6- 107  M  ;		ListEnd
+                                    6- 108  M  ;	;-----------------------------------------
+                                    6- 109  M  ;	pl_yinxiao3:
+                                    6- 110  M  ;		VoiceMake	L_SPH_5,d'16000'
+                                    6- 111  M  ;		;----------------------
+                                    6- 112  M  ;		ListEnd
+                                    6- 113  M  ;	;-----------------------------------------
+                                    6- 114  M  ;	pl_yinxiao4:
+                                    6- 115  M  ;		VoiceMake	L_SPH_6,d'16000'
+                                    6- 116  M  ;		;----------------------
+                                    6- 117  M  ;		ListEnd
+                                    6- 118  M  ;	;-----------------------------------------
+                                    6- 119  M  ;	pl_testMute:
+                                    6- 120  M  ;		VoiceMake	L_SPH_0,d'8300'
+                                    6- 121  M  ;		MuteMake	d'1000'
+                                    6- 122  M  ;		VoiceMake	L_SPH_1,d'8000'
+                                    6- 123  M  ;		MuteMake	d'2000'
+                                    6- 124  M  ;		VoiceMake	L_SPH_2,d'16000'
+                                    6- 125  M  ;		MuteMake	d'2000'
+                                    6- 126  M  ;		VoiceMake	L_SPH_3,d'16000'
+                                    6- 127  M  ;		MuteMake	d'3000'
+                                    6- 128  M  ;		VoiceMake	L_SPH_4,d'16000'
+                                    6- 129  M  ;		MuteMake	d'4000'
+                                    6- 130  M  ;		VoiceMake	L_SPH_5,d'16000'
+                                    6- 131  M  ;		MuteMake	d'5000'
+                                    6- 132  M  ;		VoiceMake	L_SPH_6,d'16000'
+                                    6- 133  M  ;		;----------------------
+                                    6- 134  M  ;		ListEnd
+                                    6- 135  M  	
+                                    6- 136  M  	;-----------------------------------------
+                                    6- 137  M  	;-----------------------------------------
+                                    6- 138  M  endm
+                                    6-0139      ;----------------------------------
+                                    6-0140      
+                                    0-0019      ;--------------- Variable Defination --------------------------------------
+                                    0-0020      ;--------------------------------------------------------------------------
+                                    0-0021      ;		R_Temp		EQU		0x10			; Example
+                                    0-0022      
+                                    0-0023      
+                                    0-0024      ;--------------- Constant Defination --------------------------------------
+                                    0-0025      ;--------------------------------------------------------------------------
+                                    0-0026      ;		C_Temp		EQU		0xFF			; Example
+                                    0-0027      
+                                    0-0028      
+                                    0-0029      ;--------------- Vector Defination ----------------------------------------
+                                    0-0030      ;--------------------------------------------------------------------------
+                  0                 0-  31      		ORG		0x000		
+        0 0342 0000                 0-  32     		JMP		V_Main                
+                                    0-0033      
+                                    0-0034      		
+                                    0-0035      ;--------------- Code Start -----------------------------------------------
+                                    0-0036      ;--------------------------------------------------------------------------
+                800                 0-  37              ORG		0x800        
+                800                 0-  38      V_Main:
+                                    0-0039      		; Power ON initial - User program area 
+                                    0-0040      		; ...
+                                    0-0041      		; ...
+                                    0-0042      		M_Option
+                 33                 3- 170 m 1  	V_SelectPlay	equ		0x33
+                 34                 3- 171 m 1  	V_SelectQIO		equ		0X34
+                  1                 3- 173 m 1  	V_CmdPlayV		equ		0X01
+                  2                 3- 174 m 1  	V_CmdPlayMute	equ		0X02
+                  F                 3- 175 m 1  	V_CmdPlayEnd	equ		0xf
+                  4                 3- 177 m 1  	V_TabPlayEnd	equ		0X04
+                  5                 3- 178 m 1  	V_TabPlayOut	equ		0X05
+                  A                 3- 180 m 1  	V_CmdDelay		equ		0X0A
+                  B                 3- 181 m 1  	V_CmdPlayTab	equ		0X0B
+                  C                 3- 183 m 1  	V_TabOutput		equ		0X0C
+                  E                 3- 184 m 1  	V_CmdPlayA		equ		0X0E
+                                    0-0043      		;------------
+                                    0-0044      		Block_Option
+                  0                 6-  16 m 1  	V_IOC_PA		equ		b'0000'
+                  B                 6-  17 m 1  	V_IOC_PB		equ		b'1011'
+                                    6-0019 m01  	#define		B_IO_Motor1		pa,3
+                                    6-0020 m01  	#define		B_IO_Motor2		pa,2
+                                    6-0021 m01  	#define		B_IO_Led1		pa,0
+                                    6-0022 m01  	#define		B_IO_Led2		pa,1
+                                    6-0023 m01  	#define		B_IO_Send		pb,2
+                                    0-0045      		;------------
+                                    0-0046      		M_ClearRam
+      800 03F1                      3- 191 m 1 		mpg		page_user
+      801 0352 0116                 3- 192 m 1 		call	F_ClearRam
+      803 03F0                      3- 193 m 1 		mpg		page_sys
+      804 0352 0116                 3- 194 m 1 		call	F_ClearRam
+                                    0-0047      		M_Init
+                                    3-0201 m01  		newR	R_PG0KeyFlagA
+                                    3-0060 m02  		M_DynRam	regName
+                  0                 3-  45 m 3  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x00010,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m03  	else
+                                    3-0048 m03  		ifndef	regName
+                 10                 3-  49 m 3  			regName		equ		V_DynamicRam
+                 11                 3-  50 m 3  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m03  		endif
+                                    3-0055 m03  	endif
+                                    3-0202 m01  		newR	R_PG0KeyFlagB
+                                    3-0060 m02  		M_DynRam	regName
+                  0                 3-  45 m 3  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x00011,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m03  	else
+                                    3-0048 m03  		ifndef	regName
+                 11                 3-  49 m 3  			regName		equ		V_DynamicRam
+                 12                 3-  50 m 3  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m03  		endif
+                                    3-0055 m03  	endif
+      806 03F0                      3- 205 m 1 		mpg		page_sys
+      807 03C0                      3- 207 m 1 		mvla	V_IOC_PA
+      808 020B                      3- 208 m 1 		mvam	paio
+      809 03CB                      3- 209 m 1 		mvla	V_IOC_PB
+      80A 020D                      3- 210 m 1 		mvam	pbio
+      80B 03C0                      3- 221 m 1 		mvla	V_IOC_PA
+      80C 0210                      3- 222 m 1 		mvam	R_PG0KeyFlagA
+      80D 03CB                      3- 223 m 1 		mvla	V_IOC_PB
+      80E 0211                      3- 224 m 1 		mvam	R_PG0KeyFlagB
+      80F 03C0                      3- 230 m 1 		mvla	0x0			; 计时器 0.125ms 
+      810 0208                      3- 231 m 1 		mvam	bt
+                                    0-0048          	;------------
+      811 03F1                      0-  49     		mpg		page_user
+                                    0-0050      		;------------
+                                    0-0051      		Block_Init
+                812                 0-  52      L_PowerOnPlay:
+                                    0-0053      ;		mpg		page_user
+                                    0-0054      		;------------
+                                    0-0055      		Block_PowerOn
+                                    6-0032 m01  		playList	pl0
+                                    4-0179 m02  		newB	B_PG0PlayStart
+                  0                 3-  65 m 3  	if (V_BitNow>=4);V_BITNOW=0x00000
+                                    3-0071 m03  	endif
+                                    3-0073 m03  	ifndef	bitName
+                 30                 3-  75 m 3  		switch	V_BitRam
+                                    3-0076 m03  			case 0x30
+                  0                 3-  77 m 3  				switch	V_BitNow
+                                    3-0078 m03  					case 0
+                                    3-0079 m03  						#define		bitName		0x30,0
+                  1                 3-  80 m 3  						break
+                                    3-0090 m03  				endsw
+                  1                 3-  91 m 3  				break
+                                    3-0156 m03  		endsw
+                  1                 3- 158 m 3  		V_BitNow=V_BitNow+1
+                                    3-0162 m03  	endif
+      812 03F0                      4- 180 m 2 		mpg		page_sys
+      813 03C2                      4- 182 m 2 		mvla	low0 voiceLabel
+      814 0235                      4- 183 m 2 		mvam	R_PG1FGTabAddr0
+      815 03CC                      4- 184 m 2 		mvla	low1 voiceLabel
+      816 0236                      4- 185 m 2 		mvam	R_PG1FGTabAddr1
+      817 03C9                      4- 186 m 2 		mvla	mid0 voiceLabel
+      818 0237                      4- 187 m 2 		mvam	R_PG1FGTabAddr2
+      819 03C0                      4- 188 m 2 		mvla	mid1 voiceLabel
+      81A 0238                      4- 189 m 2 		mvam	R_PG1FGTabAddr3
+                                    4-0191 m02  		setB	B_PG0PlayStart
+      81B 0270                      2-  19 m 3 		mvma	Register
+      81C 0391                      2-  20 m 3 		orl		1<<Bit
+      81D 0230                      2-  21 m 3 		mvam	Register
+      81E 03F1                      4- 193 m 2 		mpg		page_User
+                                    0-0056      		;------------
+                81F                 0-  57      L_MainLoop:                                    
+      81F 03F2                      0-  58             CWDT								; Clear WatchDog
+                                    0-0059      		; Main Loop Service -  User program area
+                                    0-0060      		; ...
+                                    0-0061      		; ...
+                                    0-0062      		
+      820 03F0                      0-  63     		mpg		page_sys
+                                    0-0064      		;------------
+                                    0-0065      		M_Timer
+                                    3-0302 m01  	local	L_Timer_125us,L_Timer_4Ms,L_Timer_8Ms,L_NotPlayMute,L_NotHaltFlag,L_Timer_End
+                                    3-0304 m01  		newR	R_PG0KeyDelayA
+                                    3-0060 m02  		M_DynRam	regName
+                  0                 3-  45 m 3  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x00012,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m03  	else
+                                    3-0048 m03  		ifndef	regName
+                 12                 3-  49 m 3  			regName		equ		V_DynamicRam
+                 13                 3-  50 m 3  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m03  		endif
+                                    3-0055 m03  	endif
+                                    3-0305 m01  		newR	R_PG0KeyDelayB
+                                    3-0060 m02  		M_DynRam	regName
+                  0                 3-  45 m 3  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x00013,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m03  	else
+                                    3-0048 m03  		ifndef	regName
+                 13                 3-  49 m 3  			regName		equ		V_DynamicRam
+                 14                 3-  50 m 3  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m03  		endif
+                                    3-0055 m03  	endif
+                                    3-0306 m01  		newR	R_PG0MuteTimer0
+                                    3-0060 m02  		M_DynRam	regName
+                  0                 3-  45 m 3  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x00014,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m03  	else
+                                    3-0048 m03  		ifndef	regName
+                 14                 3-  49 m 3  			regName		equ		V_DynamicRam
+                 15                 3-  50 m 3  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m03  		endif
+                                    3-0055 m03  	endif
+                                    3-0307 m01  		newR	R_PG0MuteTimer1
+                                    3-0060 m02  		M_DynRam	regName
+                  0                 3-  45 m 3  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x00015,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m03  	else
+                                    3-0048 m03  		ifndef	regName
+                 15                 3-  49 m 3  			regName		equ		V_DynamicRam
+                 16                 3-  50 m 3  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m03  		endif
+                                    3-0055 m03  	endif
+                                    3-0308 m01  		newR	R_PG0MuteTimer2
+                                    3-0060 m02  		M_DynRam	regName
+                  0                 3-  45 m 3  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x00016,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m03  	else
+                                    3-0048 m03  		ifndef	regName
+                 16                 3-  49 m 3  			regName		equ		V_DynamicRam
+                 17                 3-  50 m 3  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m03  		endif
+                                    3-0055 m03  	endif
+                                    3-0309 m01  		newR	R_PG0HaltTime0
+                                    3-0060 m02  		M_DynRam	regName
+                  0                 3-  45 m 3  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x00017,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m03  	else
+                                    3-0048 m03  		ifndef	regName
+                 17                 3-  49 m 3  			regName		equ		V_DynamicRam
+                 18                 3-  50 m 3  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m03  		endif
+                                    3-0055 m03  	endif
+                                    3-0310 m01  		newR	R_PG0HaltTime1
+                                    3-0060 m02  		M_DynRam	regName
+                  0                 3-  45 m 3  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x00018,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m03  	else
+                                    3-0048 m03  		ifndef	regName
+                 18                 3-  49 m 3  			regName		equ		V_DynamicRam
+                 19                 3-  50 m 3  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m03  		endif
+                                    3-0055 m03  	endif
+                                    3-0311 m01  		newR	R_PG0BTInc
+                                    3-0060 m02  		M_DynRam	regName
+                  0                 3-  45 m 3  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x00019,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m03  	else
+                                    3-0048 m03  		ifndef	regName
+                 19                 3-  49 m 3  			regName		equ		V_DynamicRam
+                 1A                 3-  50 m 3  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m03  		endif
+                                    3-0055 m03  	endif
+                                    3-0315 m01  		newB	B_PG04ms
+                  0                 3-  65 m 2  	if (V_BitNow>=4);V_BITNOW=0x00001
+                                    3-0071 m02  	endif
+                                    3-0073 m02  	ifndef	bitName
+                 30                 3-  75 m 2  		switch	V_BitRam
+                                    3-0076 m02  			case 0x30
+                  1                 3-  77 m 2  				switch	V_BitNow
+                                    3-0081 m02  					case 1
+                                    3-0082 m02  						#define		bitName		0x30,1
+                  1                 3-  83 m 2  						break
+                                    3-0090 m02  				endsw
+                  1                 3-  91 m 2  				break
+                                    3-0156 m02  		endsw
+                  2                 3- 158 m 2  		V_BitNow=V_BitNow+1
+                                    3-0162 m02  	endif
+                                    3-0316 m01  		newB	B_PG08ms
+                  0                 3-  65 m 2  	if (V_BitNow>=4);V_BITNOW=0x00002
+                                    3-0071 m02  	endif
+                                    3-0073 m02  	ifndef	bitName
+                 30                 3-  75 m 2  		switch	V_BitRam
+                                    3-0076 m02  			case 0x30
+                  2                 3-  77 m 2  				switch	V_BitNow
+                                    3-0084 m02  					case 2
+                                    3-0085 m02  						#define		bitName		0x30,2
+                  1                 3-  86 m 2  						break
+                                    3-0090 m02  				endsw
+                  1                 3-  91 m 2  				break
+                                    3-0156 m02  		endsw
+                  3                 3- 158 m 2  		V_BitNow=V_BitNow+1
+                                    3-0162 m02  	endif
+                                    3-0317 m01  		newB	B_PG0HaltFlag
+                  0                 3-  65 m 2  	if (V_BitNow>=4);V_BITNOW=0x00003
+                                    3-0071 m02  	endif
+                                    3-0073 m02  	ifndef	bitName
+                 30                 3-  75 m 2  		switch	V_BitRam
+                                    3-0076 m02  			case 0x30
+                  3                 3-  77 m 2  				switch	V_BitNow
+                                    3-0087 m02  					case 3
+                                    3-0088 m02  						#define		bitName		0x30,3
+                  1                 3-  89 m 2  						break
+                                    3-0090 m02  				endsw
+                  1                 3-  91 m 2  				break
+                                    3-0156 m02  		endsw
+                  4                 3- 158 m 2  		V_BitNow=V_BitNow+1
+                                    3-0162 m02  	endif
+      821 03F0                      3- 319 m 1 		mpg		Page_sys
+                                    3-0320 m01  		jnb		B_BTF,L_Timer_End
+      822 0249                      2-  88 m 2 		mvma	Register
+      823 0384                      2-  89 m 2 		andl	1<<Bit
+                                    2-0090 m02  		jz		Address
+      824 03EF                      2-  40 m 3 		cpzz
+      825 0342 006A                 2-  41 m 3 		jmp		Address
+                                    3-0322 m01  		M_ClrBTFlag
+      827 03C4                      3- 294 m 2 		mvla	0x4
+      828 0209                      3- 295 m 2 		mvam	sfr
+                829                 3- 326 m 1  	L_Timer_125us:
+      829 03F1                      3- 327 m 1 		mpg		page_user
+                                    3-0329 m01  		Block_125us
+      82A 03F0                      3- 331 m 1 		mpg		Page_sys
+      82B 0019                      3- 332 m 1 		incm	R_PG0BTInc
+      82C 0219                      3- 333 m 1 		mvam	R_PG0BTInc
+                                    3-0334 m01  		jnc		L_Timer_End
+      82D 03EC                      2-  55 m 2 		cncz
+      82E 0342 006A                 2-  56 m 2 		jmp		Address
+                830                 3- 338 m 1  	L_Timer_2Ms:
+      830 03F1                      3- 339 m 1 		mpg		page_user
+                                    3-0341 m01  		Block_2ms
+      831 03F0                      3- 343 m 1 		mpg		Page_sys
+                                    3-0344 m01  		xorB	B_PG04ms
+      832 0270                      2-  32 m 2 		mvma	Register
+      833 0372                      2-  33 m 2 		xorl	1<<Bit
+      834 0230                      2-  34 m 2 		mvam	Register
+                                    3-0346 m01  		jb		B_PG04ms,L_Timer_End
+      835 0270                      2-  82 m 2 		mvma	Register
+      836 0382                      2-  83 m 2 		andl	1<<Bit
+                                    2-0084 m02  		jnz		Address
+      837 03ED                      2-  45 m 3 		cnzz
+      838 0342 006A                 2-  46 m 3 		jmp		Address
+                83A                 3- 350 m 1  	L_Timer_4Ms:
+      83A 03F1                      3- 351 m 1 		mpg		page_user
+                                    3-0353 m01  		Block_4ms
+      83B 03F0                      3- 355 m 1 		mpg		Page_sys
+                                    3-0356 m01  		xorB	B_PG08ms
+      83C 0270                      2-  32 m 2 		mvma	Register
+      83D 0374                      2-  33 m 2 		xorl	1<<Bit
+      83E 0230                      2-  34 m 2 		mvam	Register
+                                    3-0358 m01  		jb		B_PG08ms,L_Timer_End
+      83F 0270                      2-  82 m 2 		mvma	Register
+      840 0384                      2-  83 m 2 		andl	1<<Bit
+                                    2-0084 m02  		jnz		Address
+      841 03ED                      2-  45 m 3 		cnzz
+      842 0342 006A                 2-  46 m 3 		jmp		Address
+                844                 3- 362 m 1  	L_Timer_8Ms:
+      844 03F1                      3- 363 m 1 		mpg		page_user
+                                    3-0365 m01  		Block_8ms
+      845 03F0                      3- 367 m 1 		mpg		Page_sys
+      846 0012                      3- 368 m 1 		incm	R_PG0KeyDelayA
+      847 0212                      3- 369 m 1 		mvam	R_PG0KeyDelayA
+      848 0013                      3- 370 m 1 		incm	R_PG0KeyDelayB
+      849 0213                      3- 371 m 1 		mvam	R_PG0KeyDelayB
+                                    3-0373 m01  		jz_3m	R_PG0MuteTimer2,R_PG0MuteTimer1,R_PG0MuteTimer0,L_NotPlayMute
+      84A 0256                      2- 244 m 2 		mvma	RegisterH
+      84B 0155                      2- 245 m 2 		orm		RegisterM
+      84C 0154                      2- 246 m 2 		orm		RegisterL
+                                    2-0247 m02  		jz		Address
+      84D 03EF                      2-  40 m 3 		cpzz
+      84E 0342 005C                 2-  41 m 3 		jmp		Address
+                                    3-0374 m01  		dec_3m	R_PG0MuteTimer2,R_PG0MuteTimer1,R_PG0MuteTimer0
+                                    2-0224 m02  	local	L_Exit
+      850 0054                      2- 225 m 2 		decm	RegisterL
+      851 0214                      2- 226 m 2 		mvam	RegisterL
+                                    2-0227 m02  		jc		L_Exit
+      852 03EE                      2-  50 m 3 		cpcz
+      853 0342 005C                 2-  51 m 3 		jmp		Address
+      855 0055                      2- 228 m 2 		decm	RegisterM
+      856 0215                      2- 229 m 2 		mvam	RegisterM
+                                    2-0230 m02  		jc		L_Exit
+      857 03EE                      2-  50 m 3 		cpcz
+      858 0342 005C                 2-  51 m 3 		jmp		Address
+      85A 0056                      2- 231 m 2 		decm	RegisterH
+      85B 0216                      2- 232 m 2 		mvam	RegisterH
+                85C                 2- 233 m 2  	L_Exit:
+                85C                 3- 376 m 1  	L_NotPlayMute:
+      85C 03FF                      3- 377 m 1 		nop
+                                    3-0378 m01  		inc_2m	R_PG0HaltTime1,R_PG0HaltTime0
+      85D 0017                      2- 130 m 2 		incm	RegisterL
+      85E 0217                      2- 131 m 2 		mvam	RegisterL
+      85F 03C0                      2- 132 m 2 		mvla	0x0
+      860 0098                      2- 133 m 2 		addm	RegisterH
+      861 0218                      2- 134 m 2 		mvam	RegisterH
+      862 03FF                      3- 379 m 1 		nop
+                                    3-0380 m01  		jnc		L_NotHaltFlag
+      863 03EC                      2-  55 m 2 		cncz
+      864 0342 006A                 2-  56 m 2 		jmp		Address
+      866 03FF                      3- 381 m 1 		nop
+                                    3-0382 m01  		setb	B_PG0HaltFlag
+      867 0270                      2-  19 m 2 		mvma	Register
+      868 0398                      2-  20 m 2 		orl		1<<Bit
+      869 0230                      2-  21 m 2 		mvam	Register
+                86A                 3- 384 m 1  	L_NotHaltFlag:
+                86A                 3- 386 m 1  	L_Timer_End:
+                                    0-0066      		;------------
+                                    0-0067      		M_PlayFunction
+                                    4-0011 m01  	local	L_StartPlay,L_PlayVoice,L_PlayVoiceStart,L_CheckPlayEnd,L_CheckVoiceEnd,L_CheckRepeat,L_CheckMuteEnd,L_PlayMute,L_PlayOver,L_cjjExit
+                                    4-0013 m01  		newR	R_PG0Temp0
+                                    3-0060 m02  		M_DynRam	regName
+                  0                 3-  45 m 3  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x0001a,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m03  	else
+                                    3-0048 m03  		ifndef	regName
+                 1A                 3-  49 m 3  			regName		equ		V_DynamicRam
+                 1B                 3-  50 m 3  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m03  		endif
+                                    3-0055 m03  	endif
+                                    4-0016 m01  		newR	R_PG0FGRepeat
+                                    3-0060 m02  		M_DynRam	regName
+                  0                 3-  45 m 3  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x0001b,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m03  	else
+                                    3-0048 m03  		ifndef	regName
+                 1B                 3-  49 m 3  			regName		equ		V_DynamicRam
+                 1C                 3-  50 m 3  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m03  		endif
+                                    3-0055 m03  	endif
+                                    4-0022 m01  		newB	B_PG0PlayFlag
+                  1                 3-  65 m 2  	if (V_BitNow>=4);V_BITNOW=0x00004
+                  0                 3-  66 m 2  		V_BitNow=0
+                 31                 3-  67 m 2  		V_BitRam=V_BitRam+1
+                  0                 3-  68 m 2  		if (V_BitRam>V_BitRamMax);V_BITRAM=0x00031,V_BITRAMMAX=0x00034
+                                    3-0070 m02  		endif
+                                    3-0071 m02  	endif
+                                    3-0073 m02  	ifndef	bitName
+                 31                 3-  75 m 2  		switch	V_BitRam
+                                    3-0092 m02  			case 0x31
+                  0                 3-  93 m 2  				switch	V_BitNow
+                                    3-0094 m02  					case 0
+                                    3-0095 m02  						#define		bitName		0x31,0
+                  1                 3-  96 m 2  						break
+                                    3-0106 m02  				endsw
+                  1                 3- 107 m 2  				break
+                                    3-0156 m02  		endsw
+                  1                 3- 158 m 2  		V_BitNow=V_BitNow+1
+                                    3-0162 m02  	endif
+                                    4-0023 m01  		newB	B_PG0PlayMute
+                  0                 3-  65 m 2  	if (V_BitNow>=4);V_BITNOW=0x00001
+                                    3-0071 m02  	endif
+                                    3-0073 m02  	ifndef	bitName
+                 31                 3-  75 m 2  		switch	V_BitRam
+                                    3-0092 m02  			case 0x31
+                  1                 3-  93 m 2  				switch	V_BitNow
+                                    3-0097 m02  					case 1
+                                    3-0098 m02  						#define		bitName		0x31,1
+                  1                 3-  99 m 2  						break
+                                    3-0106 m02  				endsw
+                  1                 3- 107 m 2  				break
+                                    3-0156 m02  		endsw
+                  2                 3- 158 m 2  		V_BitNow=V_BitNow+1
+                                    3-0162 m02  	endif
+      86A 03F0                      4-  26 m 1 		mpg		page_sys
+                                    4-0028 m01  		jb		B_PG0PlayStart,L_StartPlay		; 跳至开始播放处理
+      86B 0270                      2-  82 m 2 		mvma	Register
+      86C 0381                      2-  83 m 2 		andl	1<<Bit
+                                    2-0084 m02  		jnz		Address
+      86D 03ED                      2-  45 m 3 		cnzz
+      86E 0342 0077                 2-  46 m 3 		jmp		Address
+                                    4-0029 m01  		jb		B_PG0PlayFlag,L_CheckPlayEnd	; 跳至播放中处理，检测是否播放完毕
+      870 0271                      2-  82 m 2 		mvma	Register
+      871 0381                      2-  83 m 2 		andl	1<<Bit
+                                    2-0084 m02  		jnz		Address
+      872 03ED                      2-  45 m 3 		cnzz
+      873 0342 00B0                 2-  46 m 3 		jmp		Address
+      875 0342 00E8                 4-  30 m 1 		jmp		L_cjjExit									; 退出
+                877                 4-  33 m 1  	L_StartPlay: ; 开始播放
+      877 03FF                      4-  34 m 1 		nop
+                                    4-0035 m01  		setB	B_PG0PlayFlag 				; 设置为播放状 
+      878 0271                      2-  19 m 2 		mvma	Register
+      879 0391                      2-  20 m 2 		orl		1<<Bit
+      87A 0231                      2-  21 m 2 		mvam	Register
+                                    4-0036 m01  		rstB	B_PG0PlayStart             ; 关闭开始状态
+      87B 0270                      2-  25 m 2 		mvma	Register
+      87C 038E                      2-  26 m 2 		andl	~(1<<Bit)
+      87D 0230                      2-  27 m 2 		mvam	Register
+                                    4-0038 m01  		M_LoadFGTabAddr										; 检测命令字
+      87E 03F0                      4- 166 m 2 		mpg		page_sys
+      87F 02C5                      4- 168 m 2 		mvmr	(R_PG1FGTabAddr0&0XF),rpt0
+      880 02D6                      4- 169 m 2 		mvmr	(R_PG1FGTabAddr1&0XF),rpt1
+      881 02E7                      4- 170 m 2 		mvmr	(R_PG1FGTabAddr2&0XF),rpt2
+      882 02F8                      4- 171 m 2 		mvmr	(R_PG1FGTabAddr3&0XF),rpt3
+      883 03C0                      4- 172 m 2 		mvla	0X0
+      884 0204                      4- 173 m 2 		mvam	rpt4
+      885 03E1                      4-  40 m 1 		rbro	1
+      886 021A                      4-  41 m 1 		mvam	R_PG0Temp0									; 加载数据，检测最低位
+                                    4-0045 m01  		cje_al	V_CmdPlayMute,L_PlayMute					; 跳至处理静音（待完善）
+      887 03B2                      2-  60 m 2 		cnal	Constant
+      888 0342 00CD                 2-  61 m 2 		jmp		Address
+                                    4-0046 m01  		cje_al	V_CmdPlayV,L_PlayVoice						; 跳至处理声音
+      88A 03B1                      2-  60 m 2 		cnal	Constant
+      88B 0342 008F                 2-  61 m 2 		jmp		Address
+      88D 0342 00DE                 4-  48 m 1 		jmp		L_PlayOver
+                88F                 4-  50 m 1  	L_PlayVoice:
+      88F 03E1                      4-  51 m 1 		rbro	1
+      890 023B                      4-  52 m 1 		mvam	R_PG1VoiceAddr0
+      891 0246                      4-  53 m 1 		mvma	rod1
+      892 023C                      4-  54 m 1 		mvam	R_PG1VoiceAddr1
+      893 03E1                      4-  56 m 1 		rbro	1
+      894 023D                      4-  57 m 1 		mvam	R_PG1VoiceAddr2
+      895 0246                      4-  58 m 1 		mvma	rod1
+      896 023E                      4-  59 m 1 		mvam	R_PG1VoiceAddr3
+      897 03E1                      4-  61 m 1 		rbro	1
+      898 023F                      4-  62 m 1 		mvam	R_PG1VoiceAddr4
+      899 03E1                      4-  65 m 1 		rbro	1
+      89A 0239                      4-  66 m 1 		mvam	R_PG0SampleRateL
+      89B 0246                      4-  67 m 1 		mvma	rod1
+      89C 023A                      4-  68 m 1 		mvam	R_PG0SampleRateH  ;;sample rate.
+      89D 03E1                      4-  71 m 1 		rbro	1
+      89E 021B                      4-  72 m 1 		mvam	R_PG0FGRepeat
+                                    4-0074 m01  		M_SaveFGTabAddr
+      89F 03F0                      4- 154 m 2 		mpg		page_sys
+      8A0 0285                      4- 156 m 2 		mvrm	(R_PG1FGTabAddr0&0XF),rpt0
+      8A1 0296                      4- 157 m 2 		mvrm	(R_PG1FGTabAddr1&0XF),rpt1
+      8A2 02A7                      4- 158 m 2 		mvrm	(R_PG1FGTabAddr2&0XF),rpt2
+      8A3 02B8                      4- 159 m 2 		mvrm	(R_PG1FGTabAddr3&0XF),rpt3
+                8A4                 4-  76 m 1  	L_PlayVoiceStart:
+      8A4 02C9                      4-  77 m 1 		mvmr	(R_PG0SampleRateL&0X0F),rpt0
+      8A5 02DA                      4-  78 m 1 		mvmr	(R_PG0SampleRateH&0X0F),rpt1	; 加载采样率
+      8A6 03E9                      4-  79 m 1 		ldtm
+      8A7 02CB                      4-  81 m 1 		mvmr	(R_PG1VoiceAddr0&0X0F),rpt0
+      8A8 02DC                      4-  82 m 1 		mvmr	(R_PG1VoiceAddr1&0X0F),rpt1
+      8A9 02ED                      4-  83 m 1 		mvmr	(R_PG1VoiceAddr2&0X0F),rpt2
+      8AA 02FE                      4-  84 m 1 		mvmr	(R_PG1VoiceAddr3&0X0F),rpt3
+      8AB 027F                      4-  85 m 1 		mvma	R_PG1VoiceAddr4
+      8AC 0204                      4-  86 m 1 		mvam	rpt4
+      8AD 03E4                      4-  88 m 1 		play
+      8AE 0342 00E8                 4-  90 m 1 		jmp		L_cjjExit
+                8B0                 4-  93 m 1  	L_CheckPlayEnd:
+                                    4-0094 m01  		jb		B_PG0PlayMute,L_CheckMuteEnd
+      8B0 0271                      2-  82 m 2 		mvma	Register
+      8B1 0382                      2-  83 m 2 		andl	1<<Bit
+                                    2-0084 m02  		jnz		Address
+      8B2 03ED                      2-  45 m 3 		cnzz
+      8B3 0342 00C1                 2-  46 m 3 		jmp		Address
+                8B5                 4-  96 m 1  	L_CheckVoiceEnd:
+                                    4-0097 m01  		jb		B_PFLG,L_cjjExit
+      8B5 0249                      2-  82 m 2 		mvma	Register
+      8B6 0388                      2-  83 m 2 		andl	1<<Bit
+                                    2-0084 m02  		jnz		Address
+      8B7 03ED                      2-  45 m 3 		cnzz
+      8B8 0342 00E8                 2-  46 m 3 		jmp		Address
+                8BA                 4-  99 m 1  	L_CheckRepeat:
+      8BA 005B                      4- 100 m 1 		decm	R_PG0FGRepeat
+      8BB 021B                      4- 101 m 1 		mvam	R_PG0FGRepeat
+                                    4-0102 m01  		jnz		L_PlayVoiceStart
+      8BC 03ED                      2-  45 m 2 		cnzz
+      8BD 0342 00A4                 2-  46 m 2 		jmp		Address
+      8BF 0342 0077                 4- 104 m 1 		jmp		L_StartPlay
+                8C1                 4- 106 m 1  	L_CheckMuteEnd:
+                                    4-0107 m01  		jz_3m	R_PG0MuteTimer2,R_PG0MuteTimer1,R_PG0MuteTimer0,L_cjjExit
+      8C1 0256                      2- 244 m 2 		mvma	RegisterH
+      8C2 0155                      2- 245 m 2 		orm		RegisterM
+      8C3 0154                      2- 246 m 2 		orm		RegisterL
+                                    2-0247 m02  		jz		Address
+      8C4 03EF                      2-  40 m 3 		cpzz
+      8C5 0342 00E8                 2-  41 m 3 		jmp		Address
+      8C7 03FF                      4- 108 m 1 		nop
+                                    4-0109 m01  		rstb	B_PG0PlayMute
+      8C8 0271                      2-  25 m 2 		mvma	Register
+      8C9 038D                      2-  26 m 2 		andl	~(1<<Bit)
+      8CA 0231                      2-  27 m 2 		mvam	Register
+      8CB 0342 0077                 4- 110 m 1 		jmp		L_StartPlay
+                8CD                 4- 114 m 1  	L_PlayMute:
+      8CD 03FF                      4- 115 m 1 		nop
+                                    4-0116 m01  		SETB	B_PG0PlayMute
+      8CE 0271                      2-  19 m 2 		mvma	Register
+      8CF 0392                      2-  20 m 2 		orl		1<<Bit
+      8D0 0231                      2-  21 m 2 		mvam	Register
+      8D1 03E1                      4- 118 m 1 		rbro	1
+      8D2 0214                      4- 119 m 1 		mvam	R_PG0MuteTimer0
+      8D3 0246                      4- 120 m 1 		mvma	rod1
+      8D4 0215                      4- 121 m 1 		mvam	R_PG0MuteTimer1
+      8D5 03E1                      4- 123 m 1 		rbro	1
+      8D6 0216                      4- 124 m 1 		mvam	R_PG0MuteTimer2
+                                    4-0126 m01  		M_SaveFGTabAddr
+      8D7 03F0                      4- 154 m 2 		mpg		page_sys
+      8D8 0285                      4- 156 m 2 		mvrm	(R_PG1FGTabAddr0&0XF),rpt0
+      8D9 0296                      4- 157 m 2 		mvrm	(R_PG1FGTabAddr1&0XF),rpt1
+      8DA 02A7                      4- 158 m 2 		mvrm	(R_PG1FGTabAddr2&0XF),rpt2
+      8DB 02B8                      4- 159 m 2 		mvrm	(R_PG1FGTabAddr3&0XF),rpt3
+      8DC 0342 00E8                 4- 128 m 1 		jmp		L_cjjExit
+                8DE                 4- 130 m 1  	L_PlayOver:
+      8DE 03C0                      4- 132 m 1 		mvla	0X0
+      8DF 0200                      4- 133 m 1 		mvam	rpt0
+      8E0 0201                      4- 134 m 1 		mvam	rpt1
+      8E1 03E9                      4- 136 m 1 		ldtm
+      8E2 03E8                      4- 137 m 1 		stop
+                                    4-0141 m01  		rstB	B_PG0PlayFlag
+      8E3 0271                      2-  25 m 2 		mvma	Register
+      8E4 038E                      2-  26 m 2 		andl	~(1<<Bit)
+      8E5 0231                      2-  27 m 2 		mvam	Register
+      8E6 0342 00E8                 4- 145 m 1 		jmp		L_cjjExit
+                8E8                 4- 148 m 1  	L_cjjExit:
+      8E8 03F1                      4- 149 m 1 		mpg		page_User
+                                    0-0068      		;------------
+      8E9 0342 0148                 0-  69     		jmp		L_ServiceIO
+                8EB                 0-  70      L_ServiceIOOK:
+      8EB 0342 019F                 0-  71     		jmp		L_UserLoopBlock
+                8ED                 0-  72      L_UserLoopBlockOk:
+      8ED 03F0                      0-  73             mpg		page_sys
+                                    0-0074      		;------------
+                                    0-0075      		jb		B_PG0PlayFlag,L_ClrHalt
+      8EE 0271                      2-  82 m 1 		mvma	Register
+      8EF 0381                      2-  83 m 1 		andl	1<<Bit
+                                    2-0084 m01  		jnz		Address
+      8F0 03ED                      2-  45 m 2 		cnzz
+      8F1 0342 010D                 2-  46 m 2 		jmp		Address
+                                    0-0076              ;------------
+      8F3 03F1                      0-  77             mpg		page_User
+                                    0-0078      		;------------
+                                    0-0079      		Block_PlayOver	L_MainLoop
+                                    0-0080      		;------------
+      8F4 03F0                      0-  81     		mpg		page_sys
+                                    0-0082      		;------------
+                                    0-0083      		jnb		B_PG0HaltFlag,L_MainLoop
+      8F5 0270                      2-  88 m 1 		mvma	Register
+      8F6 0388                      2-  89 m 1 		andl	1<<Bit
+                                    2-0090 m01  		jz		Address
+      8F7 03EF                      2-  40 m 2 		cpzz
+      8F8 0342 001F                 2-  41 m 2 		jmp		Address
+                                    0-0084              ;------------
+                8FA                 0-  85      L_Sleep:
+                                    0-0086      		;------------
+                                    0-0087      		M_GotoSleep
+      8FA 03F0                      3- 280 m 1 		mpg		page_sys
+      8FB 03C0                      3- 281 m 1 		mvla	0x0
+      8FC 0217                      3- 282 m 1 		mvam	R_PG0HaltTime0
+      8FD 0218                      3- 283 m 1 		mvam	R_PG0HaltTime1
+                                    3-0284 m01  		rstB	B_PG0HaltFlag
+      8FE 0270                      2-  25 m 2 		mvma	Register
+      8FF 0387                      2-  26 m 2 		andl	~(1<<Bit)
+      900 0230                      2-  27 m 2 		mvam	Register
+      901 024A                      3- 286 m 1 		mvma	pa
+      902 020A                      3- 287 m 1         mvam	pa
+      903 024C                      3- 288 m 1         mvma	pb
+      904 020C                      3- 289 m 1         mvam	pb
+                                    0-0088              ;------------
+      905 03F1                      0-  89             mpg		page_User
+                                    0-0090      		;------------
+                                    0-0091      		Block_BeforeSleep
+                                    0-0092              ;------------
+      906 03FF                      0-  93     		nop
+      907 03FF                      0-  94             nop
+      908 03E2                      0-  95             halt
+      909 03FF                      0-  96             nop
+      90A 03FF                      0-  97             nop
+                                    0-0098              ;------------
+      90B 0342 001F                 0-  99             jmp		L_MainLoop
+                                    0-0100      
+                90D                 0- 101      L_ClrHalt:
+                                    0-0102      		M_ClrHalt	L_MainLoop
+      90D 03F0                      3- 261 m 1 		MPG		page_sys
+      90E 03C0                      3- 262 m 1 		mvla	0x0
+      90F 0217                      3- 263 m 1 		mvam	R_PG0HaltTime0
+      910 0218                      3- 264 m 1 		mvam	R_PG0HaltTime1
+                                    3-0265 m01  		rstb	B_PG0HaltFlag
+      911 0270                      2-  25 m 2 		mvma	Register
+      912 0387                      2-  26 m 2 		andl	~(1<<Bit)
+      913 0230                      2-  27 m 2 		mvam	Register
+      914 0342 001F                 3- 266 m 1 		jmp		returnMain
+                                    0-0103      ;--------------------------------------------------------------------------
+                                    0-0104      ; Path
+                                    0-0105      ;--------------------------------------------------------------------------
+                                    0-0106              #include		"SystemFiles\SystemPath.asm"
+                                    7-0001      ;==============================================================================
+                                    7-0002      ;	函数调用
+                                    7-0003      ;==============================================================================
+                                    7-0004      ;-----------------------------------------------
+                                    7-0005      ; 清理当前页面的RAM
+                916                 7-   6      F_ClearRam:
+      916 03C0                      7-   7     		mvla	0x0
+                 10                 7-   8      	for i=0X10 to 0X3F
+      917 0210                      7-   9     		mvam	i
+                                 ---------------
+      918 0211                      7-   9     		mvam	i
+                                 ---------------
+      919 0212                      7-   9     		mvam	i
+                                 ---------------
+      91A 0213                      7-   9     		mvam	i
+                                 ---------------
+      91B 0214                      7-   9     		mvam	i
+                                 ---------------
+      91C 0215                      7-   9     		mvam	i
+                                 ---------------
+      91D 0216                      7-   9     		mvam	i
+                                 ---------------
+      91E 0217                      7-   9     		mvam	i
+                                 ---------------
+      91F 0218                      7-   9     		mvam	i
+                                 ---------------
+      920 0219                      7-   9     		mvam	i
+                                 ---------------
+      921 021A                      7-   9     		mvam	i
+                                 ---------------
+      922 021B                      7-   9     		mvam	i
+                                 ---------------
+      923 021C                      7-   9     		mvam	i
+                                 ---------------
+      924 021D                      7-   9     		mvam	i
+                                 ---------------
+      925 021E                      7-   9     		mvam	i
+                                 ---------------
+      926 021F                      7-   9     		mvam	i
+                                 ---------------
+      927 0220                      7-   9     		mvam	i
+                                 ---------------
+      928 0221                      7-   9     		mvam	i
+                                 ---------------
+      929 0222                      7-   9     		mvam	i
+                                 ---------------
+      92A 0223                      7-   9     		mvam	i
+                                 ---------------
+      92B 0224                      7-   9     		mvam	i
+                                 ---------------
+      92C 0225                      7-   9     		mvam	i
+                                 ---------------
+      92D 0226                      7-   9     		mvam	i
+                                 ---------------
+      92E 0227                      7-   9     		mvam	i
+                                 ---------------
+      92F 0228                      7-   9     		mvam	i
+                                 ---------------
+      930 0229                      7-   9     		mvam	i
+                                 ---------------
+      931 022A                      7-   9     		mvam	i
+                                 ---------------
+      932 022B                      7-   9     		mvam	i
+                                 ---------------
+      933 022C                      7-   9     		mvam	i
+                                 ---------------
+      934 022D                      7-   9     		mvam	i
+                                 ---------------
+      935 022E                      7-   9     		mvam	i
+                                 ---------------
+      936 022F                      7-   9     		mvam	i
+                                 ---------------
+      937 0230                      7-   9     		mvam	i
+                                 ---------------
+      938 0231                      7-   9     		mvam	i
+                                 ---------------
+      939 0232                      7-   9     		mvam	i
+                                 ---------------
+      93A 0233                      7-   9     		mvam	i
+                                 ---------------
+      93B 0234                      7-   9     		mvam	i
+                                 ---------------
+      93C 0235                      7-   9     		mvam	i
+                                 ---------------
+      93D 0236                      7-   9     		mvam	i
+                                 ---------------
+      93E 0237                      7-   9     		mvam	i
+                                 ---------------
+      93F 0238                      7-   9     		mvam	i
+                                 ---------------
+      940 0239                      7-   9     		mvam	i
+                                 ---------------
+      941 023A                      7-   9     		mvam	i
+                                 ---------------
+      942 023B                      7-   9     		mvam	i
+                                 ---------------
+      943 023C                      7-   9     		mvam	i
+                                 ---------------
+      944 023D                      7-   9     		mvam	i
+                                 ---------------
+      945 023E                      7-   9     		mvam	i
+                                 ---------------
+      946 023F                      7-   9     		mvam	i
+                                    7-0010      	endfor
+      947 03E6                      7-  11     		ldpc
+                                    7-0012      
+                                    7-0013      
+                                    7-0014      
+                                    0-0107      		#include		"UserFiles\UserPath.asm"
+                                    8-0001      ; =========================================================================
+                                    8-0002      ; Created by NYIDE.
+                                    8-0003      ; User: CaiJinJu
+                                    8-0004      ; Date: 4/24/2017
+                                    8-0005      ; Time: 4:12 PM
+                                    8-0006      ; =========================================================================
+                                    8-0007      	
+                                    8-0008      ;----------------------------------
+                948                 8-   9      L_ServiceIO:
+                                    8-0010      ;		M_CheckPortA
+                                    8-0011      ;		M_CheckPortB
+                                    8-0012      		M_CheckPort
+                                    5-0166 m01  		M_CheckPortB
+                                    5-0089 m02  	local	L_ExitIOB,L_ScanPortB,L_ClrHaltFlagB,L_CheckPortBOK
+                                    5-0091 m02  		newR	R_PG0KeyBufferB
+                                    3-0060 m03  		M_DynRam	regName
+                  0                 3-  45 m 4  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x0001c,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m04  	else
+                                    3-0048 m04  		ifndef	regName
+                 1C                 3-  49 m 4  			regName		equ		V_DynamicRam
+                 1D                 3-  50 m 4  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m04  		endif
+                                    3-0055 m04  	endif
+                                    5-0093 m02  		newR	R_PG0KeyRising
+                                    3-0060 m03  		M_DynRam	regName
+                  0                 3-  45 m 4  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x0001d,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m04  	else
+                                    3-0048 m04  		ifndef	regName
+                 1D                 3-  49 m 4  			regName		equ		V_DynamicRam
+                 1E                 3-  50 m 4  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m04  		endif
+                                    3-0055 m04  	endif
+                                    5-0094 m02  		newR	R_PG0KeyFalling
+                                    3-0060 m03  		M_DynRam	regName
+                  0                 3-  45 m 4  	if (V_DynamicRam>V_MaxSRamAddr);V_DYNAMICRAM=0x0001e,V_MAXSRAMADDR=0x0002f
+                                    3-0047 m04  	else
+                                    3-0048 m04  		ifndef	regName
+                 1E                 3-  49 m 4  			regName		equ		V_DynamicRam
+                 1F                 3-  50 m 4  			V_DynamicRam=V_DynamicRam+1
+                                    3-0054 m04  		endif
+                                    3-0055 m04  	endif
+      948 03F0                      5-  99 m 2 		mpg		page_sys
+      949 024C                      5- 101 m 2 		mvma	pb
+      94A 038B                      5- 102 m 2 		andl	V_IOC_PB
+      94B 00D1                      5- 103 m 2 		xorm	R_PG0KeyFlagB
+                                    5-0104 m02  		jz		L_ExitIOB
+      94C 03EF                      2-  40 m 3 		cpzz
+      94D 0342 0158                 2-  41 m 3 		jmp		Address
+      94F 024C                      5- 105 m 2 		mvma	pb
+      950 038B                      5- 106 m 2 		andl	V_IOC_PB
+      951 00DC                      5- 107 m 2 		xorm	R_PG0KeyBufferB
+                                    5-0108 m02  		jz		L_ScanPortB
+      952 03EF                      2-  40 m 3 		cpzz
+      953 0342 015C                 2-  41 m 3 		jmp		Address
+      955 024C                      5- 109 m 2 		mvma	pb
+      956 038B                      5- 110 m 2 		andl	V_IOC_PB
+      957 021C                      5- 111 m 2 		mvam	R_PG0KeyBufferB
+                958                 5- 112 m 2  	L_ExitIOB:
+      958 03C0                      5- 113 m 2 		mvla	0x0
+      959 0213                      5- 114 m 2 		mvam	R_PG0KeyDelayB
+      95A 0342 019D                 5- 115 m 2 		jmp		L_CheckPortBOK
+                95C                 5- 118 m 2  	L_ScanPortB:
+      95C 0253                      5- 119 m 2 		mvma	R_PG0KeyDelayB
+      95D 0382                      5- 120 m 2 		andl	b'0010'
+                                    5-0121 m02  		jz		L_ClrHaltFlagB
+      95E 03EF                      2-  40 m 3 		cpzz
+      95F 0342 0196                 2-  41 m 3 		jmp		Address
+      961 03C0                      5- 123 m 2 		mvla	0x0
+      962 0213                      5- 124 m 2 		mvam	R_PG0KeyDelayB
+      963 025C                      5- 126 m 2 		mvma	R_PG0KeyBufferB
+      964 00D1                      5- 127 m 2 		xorm	R_PG0KeyFlagB
+      965 011C                      5- 128 m 2 		andm	R_PG0KeyBufferB
+      966 021D                      5- 129 m 2 		mvam	R_PG0KeyRising
+      967 025C                      5- 131 m 2 		mvma	R_PG0KeyBufferB
+      968 00D1                      5- 132 m 2 		xorm	R_PG0KeyFlagB
+      969 0111                      5- 133 m 2 		andm	R_PG0KeyFlagB
+      96A 021E                      5- 134 m 2 		mvam	R_PG0KeyFalling
+      96B 025C                      5- 136 m 2 		mvma	R_PG0KeyBufferB
+      96C 0211                      5- 137 m 2 		mvam	R_PG0KeyFlagB
+      96D 03F1                      5- 139 m 2 		mpg		page_user
+                                    5-0140 m02  		jb		R_PG0KeyFalling,0,L_KeyPB0Falling
+      96E 025E                      2-  82 m 3 		mvma	Register
+      96F 0381                      2-  83 m 3 		andl	1<<Bit
+                                    2-0084 m03  		jnz		Address
+      970 03ED                      2-  45 m 4 		cnzz
+      971 0342 01B2                 2-  46 m 4 		jmp		Address
+                                    5-0141 m02  		jb		R_PG0KeyFalling,1,L_KeyPB1Falling
+      973 025E                      2-  82 m 3 		mvma	Register
+      974 0382                      2-  83 m 3 		andl	1<<Bit
+                                    2-0084 m03  		jnz		Address
+      975 03ED                      2-  45 m 4 		cnzz
+      976 0342 01B4                 2-  46 m 4 		jmp		Address
+                                    5-0142 m02  		jb		R_PG0KeyFalling,2,L_KeyPB2Falling
+      978 025E                      2-  82 m 3 		mvma	Register
+      979 0384                      2-  83 m 3 		andl	1<<Bit
+                                    2-0084 m03  		jnz		Address
+      97A 03ED                      2-  45 m 4 		cnzz
+      97B 0342 01B6                 2-  46 m 4 		jmp		Address
+                                    5-0143 m02  		jb		R_PG0KeyFalling,3,L_KeyPB3Falling
+      97D 025E                      2-  82 m 3 		mvma	Register
+      97E 0388                      2-  83 m 3 		andl	1<<Bit
+                                    2-0084 m03  		jnz		Address
+      97F 03ED                      2-  45 m 4 		cnzz
+      980 0342 01B8                 2-  46 m 4 		jmp		Address
+                                    5-0145 m02  		jb		R_PG0KeyRising,0,L_KeyPB0Rising
+      982 025D                      2-  82 m 3 		mvma	Register
+      983 0381                      2-  83 m 3 		andl	1<<Bit
+                                    2-0084 m03  		jnz		Address
+      984 03ED                      2-  45 m 4 		cnzz
+      985 0342 01BA                 2-  46 m 4 		jmp		Address
+                                    5-0146 m02  		jb		R_PG0KeyRising,1,L_KeyPB1Rising
+      987 025D                      2-  82 m 3 		mvma	Register
+      988 0382                      2-  83 m 3 		andl	1<<Bit
+                                    2-0084 m03  		jnz		Address
+      989 03ED                      2-  45 m 4 		cnzz
+      98A 0342 01BC                 2-  46 m 4 		jmp		Address
+                                    5-0147 m02  		jb		R_PG0KeyRising,2,L_KeyPB2Rising
+      98C 025D                      2-  82 m 3 		mvma	Register
+      98D 0384                      2-  83 m 3 		andl	1<<Bit
+                                    2-0084 m03  		jnz		Address
+      98E 03ED                      2-  45 m 4 		cnzz
+      98F 0342 01BE                 2-  46 m 4 		jmp		Address
+                                    5-0148 m02  		jb		R_PG0KeyRising,3,L_KeyPB3Rising
+      991 025D                      2-  82 m 3 		mvma	Register
+      992 0388                      2-  83 m 3 		andl	1<<Bit
+                                    2-0084 m03  		jnz		Address
+      993 03ED                      2-  45 m 4 		cnzz
+      994 0342 01C0                 2-  46 m 4 		jmp		Address
+                996                 5- 150 m 2  	L_ClrHaltFlagB:
+      996 03F0                      5- 151 m 2 		mpg		page_sys
+      997 03C0                      5- 152 m 2 		mvla	0x0
+      998 0217                      5- 153 m 2 		mvam	R_PG0HaltTime0
+      999 0218                      5- 154 m 2 		mvam	R_PG0HaltTime1
+                                    5-0156 m02  		rstb	B_PG0HaltFlag
+      99A 0270                      2-  25 m 3 		mvma	Register
+      99B 0387                      2-  26 m 3 		andl	~(1<<Bit)
+      99C 0230                      2-  27 m 3 		mvam	Register
+                99D                 5- 158 m 2  	L_CheckPortBOK:
+      99D 0342 00EB                 8-  13     		jmp		L_ServiceIOOK
+                                    8-0014      
+                                    8-0015      ;----------------------------------
+                99F                 8-  16      L_UserLoopBlock:
+      99F 03F1                      8-  17     		mpg		page_user
+                                    8-0018      		;----------------
+                                    8-0019      		Block_Loop
+                                    8-0020      		;----------------
+      9A0 0342 00ED                 8-  21     		jmp		L_UserLoopBlockOk
+                                    8-0022      		
+                                    8-0023      ;----------------------------------
+                                    8-0024      ;	按键处理
+                                    8-0025      ;----------------------------------
+                9A2                 8-  26      L_KeyPA0Falling:
+                                    8-0027      
+                                    8-0028      		PathEnd
+      9A2 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0029      ;----------------------------------
+                9A4                 8-  30      L_KeyPA1Falling:
+                                    8-0031      
+                                    8-0032      		PathEnd
+      9A4 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0033      
+                                    8-0034      ;----------------------------------
+                9A6                 8-  35      L_KeyPA2Falling:
+                                    8-0036      
+                                    8-0037      		PathEnd
+      9A6 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0038      
+                                    8-0039      ;----------------------------------
+                9A8                 8-  40      L_KeyPA3Falling:
+                                    8-0041      
+                                    8-0042      		PathEnd
+      9A8 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0043      
+                                    8-0044      ;----------------------------------
+                9AA                 8-  45      L_KeyPA0Rising:
+                                    8-0046      
+                                    8-0047      		PathEnd
+      9AA 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0048      
+                                    8-0049      ;----------------------------------
+                9AC                 8-  50      L_KeyPA1Rising:
+                                    8-0051      
+                                    8-0052      		PathEnd
+      9AC 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0053      
+                                    8-0054      ;----------------------------------
+                9AE                 8-  55      L_KeyPA2Rising:
+                                    8-0056      
+                                    8-0057      		PathEnd
+      9AE 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0058      
+                                    8-0059      ;----------------------------------
+                9B0                 8-  60      L_KeyPA3Rising:
+                                    8-0061      
+                                    8-0062      		PathEnd
+      9B0 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0063      
+                                    8-0064      ;----------------------------------
+                9B2                 8-  65      L_KeyPB0Falling:
+                                    8-0066      
+                                    8-0067      		PathEnd
+      9B2 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0068      
+                                    8-0069      ;----------------------------------
+                9B4                 8-  70      L_KeyPB1Falling:
+                                    8-0071      
+                                    8-0072      		PathEnd
+      9B4 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0073      
+                                    8-0074      ;----------------------------------
+                9B6                 8-  75      L_KeyPB2Falling:
+                                    8-0076      
+                                    8-0077      		PathEnd
+      9B6 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0078      
+                                    8-0079      ;----------------------------------
+                9B8                 8-  80      L_KeyPB3Falling:
+                                    8-0081      
+                                    8-0082      		PathEnd
+      9B8 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0083      
+                                    8-0084      ;----------------------------------
+                9BA                 8-  85      L_KeyPB0Rising:
+                                    8-0086      
+                                    8-0087      		PathEnd
+      9BA 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0088      
+                                    8-0089      ;----------------------------------
+                9BC                 8-  90      L_KeyPB1Rising:
+                                    8-0091      
+                                    8-0092      		PathEnd
+      9BC 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0093      
+                                    8-0094      ;----------------------------------
+                9BE                 8-  95      L_KeyPB2Rising:
+                                    8-0096      
+                                    8-0097      		PathEnd
+      9BE 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0098      
+                                    8-0099      ;----------------------------------
+                9C0                 8- 100      L_KeyPB3Rising:
+                                    8-0101      
+                                    8-0102      		PathEnd
+      9C0 0342 001F                 6-   9 m 1 		jmp		L_MainLoop
+                                    8-0103      
+                                    8-0104      ;----------------------------------
+                                    8-0105      
+                                    0-0108      		Block_PlayList
+                9C2                 6-  66 m 1  	pl0:
+                                    6-0067 m01  		VoiceMake	L_SPH_0,d'12000'
+                                    4-0224 m02  		VoiceMake@N	voiceLabel,SR,0x1
+   0009C2 0331                      4-0211 m03 		DW	(V_SelectPlay<<4)|V_CmdPlayV
+   0009C3 00C9                      4-0213 m03 		DW	Low voiceLabel
+   0009C4 0009                      4-0214 m03 		DW	Mid voiceLabel
+   0009C5 0000                      4-0215 m03 		DW	High0 voiceLabel
+   0009C6 0052                      4-0217 m03 		DW	D'1000000'/SR -1
+   0009C7 0001                      4-0219 m03 		dw	Low0 repeatData
+                                    6-0069 m01  		ListEnd
+   0009C8 033F                      4-0229 m02 		DW	(V_SelectPlay<<4)|V_CmdPlayEnd
+                                    0-0109      		#include 		"Resource.asm"
+                                    9-0001      ;============================================================
+                                    9-0002      ;Speech included area
+                                    9-0003      ;============================================================
+                9C9                 9-   4      L_SPH_0:
+                9C9                 9-   5      		#includata "ResourceFiles\Voice Files\qidisheng12k.v4x"
+                                    9-0006      ;NoiseFilter = True, WaveFile = False, NYQFile = False, SampleRate = 12000
+                                    9-0007      
+                                    9-0008      
+                                    9-0009      
+                                    9-0010      ;============================================================
+                                    9-0011      ;Action included area
+                                    9-0012      ;============================================================
+                                    9-0013      
+                                    0-0110      end											; End of Code
+
+NYASM 2.03 [Build 022317.00]  File=D Date=2017/4/25 16:04:42
+
+SYMBOL TABLE            TYPE     VALUE
+
+__4B005B                Constant 00000001
+__PROCESSOR__           Constant 0000410F
+AUD                     Constant 00000009
+B_BTF                   Define   SFR,2
+B_IO_LED1               Define   PA,0
+B_IO_LED2               Define   PA,1
+B_IO_MOTOR1             Define   PA,3
+B_IO_MOTOR2             Define   PA,2
+B_IO_SEND               Define   PB,2
+B_PFLG                  Define   SFR,3
+B_PG04MS                Define   0X30,1
+B_PG08MS                Define   0X30,2
+B_PG0HALTFLAG           Define   0X30,3
+B_PG0PLAYFLAG           Define   0X31,0
+B_PG0PLAYMUTE           Define   0X31,1
+B_PG0PLAYSTART          Define   0X30,0
+B_QIOF                  Define   SFR,1
+B_TOF                   Define   SFR,0
+BT                      Constant 00000008
+F_CLEARRAM              Label    00000916
+FD                      Constant 00000008
+L_CHECKMUTEEND          L-Label  000008C1
+L_CHECKPLAYEND          L-Label  000008B0
+L_CHECKPORTBOK          L-Label  0000099D
+L_CHECKREPEAT           L-Label  000008BA
+L_CHECKVOICEEND         L-Label  000008B5
+L_CJJEXIT               L-Label  000008E8
+L_CLRHALT               Label    0000090D
+L_CLRHALTFLAGB          L-Label  00000996
+L_EXIT                  L-Label  0000085C
+L_EXITIOB               L-Label  00000958
+L_KEYPA0FALLING         Label    000009A2
+L_KEYPA0RISING          Label    000009AA
+L_KEYPA1FALLING         Label    000009A4
+L_KEYPA1RISING          Label    000009AC
+L_KEYPA2FALLING         Label    000009A6
+L_KEYPA2RISING          Label    000009AE
+L_KEYPA3FALLING         Label    000009A8
+L_KEYPA3RISING          Label    000009B0
+L_KEYPB0FALLING         Label    000009B2
+L_KEYPB0RISING          Label    000009BA
+L_KEYPB1FALLING         Label    000009B4
+L_KEYPB1RISING          Label    000009BC
+L_KEYPB2FALLING         Label    000009B6
+L_KEYPB2RISING          Label    000009BE
+L_KEYPB3FALLING         Label    000009B8
+L_KEYPB3RISING          Label    000009C0
+L_MAINLOOP              Label    0000081F
+L_NOTHALTFLAG           L-Label  0000086A
+L_NOTPLAYMUTE           L-Label  0000085C
+L_PLAYMUTE              L-Label  000008CD
+L_PLAYOVER              L-Label  000008DE
+L_PLAYVOICE             L-Label  0000088F
+L_PLAYVOICESTART        L-Label  000008A4
+L_POWERONPLAY           Label    00000812
+L_SCANPORTB             L-Label  0000095C
+L_SERVICEIO             Label    00000948
+L_SERVICEIOOK           Label    000008EB
+L_SLEEP                 Label    000008FA
+L_SPH_0                 DataFile 000009C9  D:\cjj\workspace\����\20170421��\CJJ-NY4-V01\RESOURCEFILES\VOICE FILES\QIDISHENG12K.V4X
+L_STARTPLAY             L-Label  00000877
+L_TIMER_125US           L-Label  00000829
+L_TIMER_2MS             Label    00000830
+L_TIMER_4MS             L-Label  0000083A
+L_TIMER_8MS             L-Label  00000844
+L_TIMER_END             L-Label  0000086A
+L_USERLOOPBLOCK         Label    0000099F
+L_USERLOOPBLOCKOK       Label    000008ED
+PA                      Constant 0000000A
+PAGE_PLAY               Constant 00000000
+PAGE_SYS                Constant 00000000
+PAGE_USER               Constant 00000001
+PAIO                    Constant 0000000B
+PB                      Constant 0000000C
+PBIO                    Constant 0000000D
+PL0                     Label    000009C2
+R_PG0BTINC              Constant 00000019
+R_PG0FGREPEAT           Constant 0000001B
+R_PG0HALTTIME0          Constant 00000017
+R_PG0HALTTIME1          Constant 00000018
+R_PG0KEYBUFFERB         Constant 0000001C
+R_PG0KEYDELAYA          Constant 00000012
+R_PG0KEYDELAYB          Constant 00000013
+R_PG0KEYFALLING         Constant 0000001E
+R_PG0KEYFLAGA           Constant 00000010
+R_PG0KEYFLAGB           Constant 00000011
+R_PG0KEYRISING          Constant 0000001D
+R_PG0MUTETIMER0         Constant 00000014
+R_PG0MUTETIMER1         Constant 00000015
+R_PG0MUTETIMER2         Constant 00000016
+R_PG0SAMPLERATEH        Constant 0000003A
+R_PG0SAMPLERATEL        Constant 00000039
+R_PG0TEMP0              Constant 0000001A
+R_PG1FGTABADDR0         Constant 00000035
+R_PG1FGTABADDR1         Constant 00000036
+R_PG1FGTABADDR2         Constant 00000037
+R_PG1FGTABADDR3         Constant 00000038
+R_PG1VOICEADDR0         Constant 0000003B
+R_PG1VOICEADDR1         Constant 0000003C
+R_PG1VOICEADDR2         Constant 0000003D
+R_PG1VOICEADDR3         Constant 0000003E
+R_PG1VOICEADDR4         Constant 0000003F
+ROD1                    Constant 00000006
+ROD2                    Constant 00000007
+RPT0                    Constant 00000000
+RPT1                    Constant 00000001
+RPT2                    Constant 00000002
+RPT3                    Constant 00000003
+RPT4                    Constant 00000004
+SFR                     Constant 00000009
+V_BITNOW                Variable 00000002
+V_BITRAM                Variable 00000031
+V_BITRAMMAX             Variable 00000034
+V_CMDDELAY              Constant 0000000A
+V_CMDPLAYA              Constant 0000000E
+V_CMDPLAYEND            Constant 0000000F
+V_CMDPLAYMUTE           Constant 00000002
+V_CMDPLAYTAB            Constant 0000000B
+V_CMDPLAYV              Constant 00000001
+V_DYNAMICRAM            Variable 0000001F
+V_IOC_PA                Constant 00000000
+V_IOC_PB                Constant 0000000B
+V_MAIN                  Label    00000800
+V_MAXSRAMADDR           Variable 0000002F
+V_SELECTPLAY            Constant 00000033
+V_SELECTQIO             Constant 00000034
+V_TABOUTPUT             Constant 0000000C
+V_TABPLAYEND            Constant 00000004
+V_TABPLAYOUT            Constant 00000005
+
+
+SOURCE FILE TABLE
+000 D:\cjj\workspace\案子\20170421火车\CJJ-NY4-V01\main.asm
+001 D:\cjj\workspace\案子\20170421火车\CJJ-NY4-V01\NY4.H
+002 D:\cjj\workspace\案子\20170421火车\CJJ-NY4-V01\SYSTEMFILES\CJJ.MAC4
+003 D:\cjj\workspace\案子\20170421火车\CJJ-NY4-V01\SYSTEMFILES\SYSTEMMACRO.ASM
+004 D:\cjj\workspace\案子\20170421火车\CJJ-NY4-V01\SYSTEMFILES\PLAYV.ASM
+005 D:\cjj\workspace\案子\20170421火车\CJJ-NY4-V01\SYSTEMFILES\KEYSCAN.ASM
+006 D:\cjj\workspace\案子\20170421火车\CJJ-NY4-V01\USERFILES\USERMACRO.ASM
+007 D:\cjj\workspace\案子\20170421火车\CJJ-NY4-V01\SYSTEMFILES\SYSTEMPATH.ASM
+008 D:\cjj\workspace\案子\20170421火车\CJJ-NY4-V01\USERFILES\USERPATH.ASM
+009 D:\cjj\workspace\案子\20170421火车\CJJ-NY4-V01\RESOURCE.ASM
+
+PROCESSOR    = NY4B005B (4 bits) 
+PROGRAM ROM  = 0x00000000 - 0x00003FFF
+DATA ROM     = 0x00000000 - 0x00003FFF
+RESERVED MEM = 0x0000001F - 0x000007FF
+SRAM / SFR   = 0x00000000 - 0x0000000D

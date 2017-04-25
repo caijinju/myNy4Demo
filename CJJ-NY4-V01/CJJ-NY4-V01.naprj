@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup Condition="">
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <AssemblyName>CJJ-NY4-V01</AssemblyName>
+    <ChipId>NY4B005B</ChipId>
+    <ClientName>CJJ</ClientName>
+    <Configuration>Debug</Configuration>
+    <LinkerScriptFile>CJJ-NY4-V01.ld</LinkerScriptFile>
+    <OutputType>bin</OutputType>
+    <Platform>AsmNy4</Platform>
+    <ProjectGuid>{D06CB0B1-7640-4462-9224-978918487095}</ProjectGuid>
+    <ProjectOptionChanged>False</ProjectOptionChanged>
+    <RootNamespace>LGW_16637CJJ_V01</RootNamespace>
+    <ShowAllWarning>True</ShowAllWarning>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="CJJ-NY4-V01.cb" EntryPoint="false" MetaData="" />
+    <Compile Include="main.asm" EntryPoint="true" MetaData="" />
+    <None Include="NY4.h" EntryPoint="false" MetaData="" />
+    <Compile Include="Resource.asm" EntryPoint="false" MetaData="" />
+    <Folder Include="ResourceFiles" EntryPoint="false" MetaData="" />
+    <Folder Include="ResourceFiles\Action Files" EntryPoint="false" MetaData="" />
+    <Folder Include="ResourceFiles\Voice Files" EntryPoint="false" MetaData="" />
+    <None Include="SystemFiles\cjj.mac4" EntryPoint="false" MetaData="" />
+    <Compile Include="SystemFiles\keyScan.asm" EntryPoint="false" MetaData="" />
+    <Compile Include="SystemFiles\PlayV.asm" EntryPoint="false" MetaData="" />
+    <Compile Include="SystemFiles\SystemMacro.asm" EntryPoint="false" MetaData="" />
+    <Compile Include="SystemFiles\SystemPath.asm" EntryPoint="false" MetaData="" />
+    <Compile Include="UserFiles\userMacro.asm" EntryPoint="false" MetaData="" />
+    <Compile Include="UserFiles\userPath.asm" EntryPoint="false" MetaData="" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Client: LGW" EntryPoint="false" MetaData="" />
+    <Reference Include="Config Block: CJJ-NY4-V01.cb" EntryPoint="false" MetaData="" />
+    <Reference Include="IC Body: NY4B005B" EntryPoint="false" MetaData="" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="ResourceFiles\Voice Files\qidisheng12k.wav" EntryPoint="false" MetaData="ResourceFiles\Voice Files\qidisheng12k.wav" />
+    <Folder Include="SystemFiles" EntryPoint="false" MetaData="" />
+    <Folder Include="UserFiles" EntryPoint="false" MetaData="" />
+  </ItemGroup>
+  <Properties>
+    <Array name="ActionFiles" />
+    <Array name="bookmarks">
+      <Element value="Breakpoint|SystemFiles\SystemMacro.asm|380|2|True|Break|||||||" />
+      <Element value="Breakpoint|SystemFiles\PlayV.asm|33|2|False|Break|||||||" />
+      <Element value="Breakpoint|SystemFiles\PlayV.asm|114|2|False|Break|||||||" />
+      <Element value="Breakpoint|SystemFiles\SystemMacro.asm|354|2|False|Break|||||||" />
+      <Element value="Breakpoint|SystemFiles\PlayV.asm|107|2|False|Break|||||||" />
+      <Element value="Breakpoint|SystemFiles\PlayV.asm|136|2|False|Break|||||||" />
+      <Element value="Breakpoint|SystemFiles\PlayV.asm|188|2|False|Break|||||||" />
+      <Element value="Breakpoint|SystemFiles\keyScan.asm|76|2|False|Break|||||||" />
+      <Element value="Breakpoint|SystemFiles\keyScan.asm|153|2|False|Break|||||||" />
+    </Array>
+    <Array name="DisassemblyPadColumnWidthInfo">
+      <Element value="AddrWidth|60" />
+      <Element value="CodeWidth|140" />
+      <Element value="ArrowWidth|20" />
+    </Array>
+    <Array name="EnvelopFiles" />
+    <Array name="ExternalResource" />
+    <Array name="files">
+      <Element value="main.asm|False" />
+      <Element value="SystemFiles\cjj.mac4|False" />
+      <Element value="NY4.h|False" />
+      <Element value="Resource.asm|False" />
+      <Element value="SystemFiles\PlayV.asm|False" />
+      <Element value="SystemFiles\SystemPath.asm|False" />
+      <Element value="SystemFiles\SystemMacro.asm|False" />
+      <Element value="UserFiles\userMacro.asm|True" />
+      <Element value="UserFiles\userPath.asm|False" />
+      <Element value="SystemFiles\keyScan.asm|False" />
+      <Element value="CJJ-NY4-V01.lst|False" />
+    </Array>
+    <Array name="InstrumentFiles" />
+    <Array name="MelodyDatabaseFiles" />
+    <Array name="MusicFiles" />
+    <Array name="RegisterPadExpandInfo">
+      <Element value="0|True" />
+      <Element value="100|False" />
+      <Element value="101|False" />
+      <Element value="102|False" />
+      <Element value="103|False" />
+      <Element value="104|False" />
+      <Element value="105|False" />
+      <Element value="106|False" />
+      <Element value="107|False" />
+      <Element value="1|True" />
+      <Element value="200|False" />
+      <Element value="201|False" />
+    </Array>
+    <Array name="ResourceManager">
+      <Element value="False" />
+      <Element value="False" />
+      <Element value="False" />
+    </Array>
+    <Array name="VoiceFiles">
+      <Element value="L_SPH_0|ResourceFiles/Voice Files/qidisheng12k.wav|12|Short|6 M|True|False|10683|True|Collapsed|False|False|Visible|Visible|-8587085240116040084|0|0|vix|False|Unknown|0|0|Unknown" />
+    </Array>
+    <Array name="VRModule" />
+    <Array name="WatchItemInfo">
+      <Element value="Address: 0x30|0" />
+    </Array>
+    <Array name="WatchPadColumnWidthInfo">
+      <Element value="NameWidth|147" />
+      <Element value="AddrWidth|89" />
+      <Element value="ValWidth|101" />
+      <Element value="PageWidth|50" />
+    </Array>
+  </Properties>
+</Project>

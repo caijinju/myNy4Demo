@@ -1,0 +1,248 @@
+﻿; =========================================================================
+; Created by NYIDE.
+; User: CaiJinJu
+; Date: 4/21/2017
+; Time: 3:46 PM
+; =========================================================================
+;=================================================
+;		系统定义
+;=================================================
+#define		B_TOF	sfr,0
+#define		B_QIOF	sfr,1
+#define		B_BTF	sfr,2
+#define		B_PFLG	sfr,3
+
+;=================================================
+;		位运算
+;=================================================
+setB	macro	Register,Bit
+		mvma	Register
+		orl		1<<Bit
+		mvam	Register
+endm
+;-------------------------------------------------
+rstB	macro	Register,Bit
+		mvma	Register
+		andl	~(1<<Bit)
+		mvam	Register
+endm
+
+;-------------------------------------------------
+xorB	macro	Register,Bit
+		mvma	Register
+		xorl	1<<Bit
+		mvam	Register
+endm
+;=================================================
+;		跳转指令
+;=================================================
+jz		macro	Address
+		cpzz
+		jmp		Address
+endm
+;-------------------------------------------------
+jnz		macro	Address
+		cnzz
+		jmp		Address
+endm
+;-------------------------------------------------
+jc		macro	Address
+		cpcz
+		jmp		Address
+endm
+;-------------------------------------------------
+jnc		macro	Address
+		cncz
+		jmp		Address
+endm
+;-------------------------------------------------
+cje_al	macro	Constant,Address
+		cnal	Constant
+		jmp		Address
+endm
+;-------------------------------------------------
+cjne_al	macro	Constant,Address
+		cpal	Constant
+		jmp		Address
+endm
+;-------------------------------------------------
+cje_am	macro	Register,Address
+		cnam	Register
+		jmp		Address
+endm
+;-------------------------------------------------
+cjne_am	macro	Register,Address
+		cpam	Register
+		jmp		Address
+endm
+;-------------------------------------------------
+;		以下 A 值会改变
+;-------------------------------------------------
+jb		macro	Register,Bit,Address
+		mvma	Register
+		andl	1<<Bit
+		jnz		Address
+endm
+;-------------------------------------------------
+jnb		macro	Register,Bit,Address
+		mvma	Register
+		andl	1<<Bit
+		jz		Address
+endm
+;-------------------------------------------------
+cje_ml	macro	Register,Constant,Address
+		mvla	Constant
+		cje_am	Register,Address
+endm
+;-------------------------------------------------
+cjne_ml	macro	Register,Constant,Address
+		mvla	Constant
+		cjne_am	Register,Address
+endm
+;-------------------------------------------------
+cje_mm	macro	Register1,Register2,Address
+		mvma	Register1
+		cje_am	Register2,Address
+endm
+;-------------------------------------------------
+cjne_mm	macro	Register1,Register2,Address
+		mvma	Register1
+		cjne_am	Register2,Address
+endm
+;-------------------------------------------------
+cjlt_ml	macro	Register,Constant,Address
+		setc
+		mvma	Register
+		addl	low0 (~Constant)
+		jnc		Address
+endm
+;-------------------------------------------------
+cjge_ml	macro	Register,Constant,Address
+		setc
+		mvma	Register
+		addl	low0 (~Constant)
+		jc		Address
+endm
+;=================================================
+;		加法指令
+;=================================================
+inc_2m	macro	RegisterH,RegisterL
+		incm	RegisterL
+		mvam	RegisterL
+		mvla	0x0
+		addm	RegisterH
+		mvam	RegisterH
+endm
+;-------------------------------------------------
+add_ml	macro	Register,Constant
+		rstc
+		mvla	low0 Constant
+		addm	Register
+		mvam	Register
+endm
+;-------------------------------------------------
+adc_ml	macro	Register,Constant
+		mvla	low0 Constant
+		addm	Register
+		mvam	Register
+endm
+;-------------------------------------------------
+add_mm	macro	Register1,Register2
+		rstc
+		mvla	Register1
+		addm	Register2
+		mvam	Register1
+endm
+;-------------------------------------------------
+adc_mm	macro	Register1,Register2
+		mvla	Register1
+		addm	Register2
+		mvam	Register1
+endm
+;-------------------------------------------------
+add_2ml	macro	RegisterH,RegisterL,Constant
+		add_ml	RegisterL,(low0 Constant)
+		adc_ml	RegisterH,(low1 Constant)
+endm
+;-------------------------------------------------
+add_2mm	macro	Register1H,Register1L,Register2H,Register2L
+		add_mm	Register1L,Register2L
+		adc_mm	Register1H,Register2H
+endm
+;=================================================
+;		减法指令
+;=================================================
+sub_ml	macro	Register,Constant
+		setc
+		mvma	Register
+		addl	low0 (~Constant)
+		mvam	Register
+endm
+;-------------------------------------------------
+sbc_ml	macro	Register,Constant
+		mvma	Register
+		addl	low0 (~Constant)
+		mvam	Register
+endm
+;-------------------------------------------------
+sbc_2ml	macro	RegisterH,RegisterL,Constant
+		sub_ml	RegisterL,(low0 Constant)
+		sbc_ml	RegisterL,(low1 Constant)
+endm
+;-------------------------------------------------
+sub_mm	macro	Register1,Register2
+		setc
+		mvma	Register2
+		xorl	0xf
+		addm	Register1
+		mvam	Register1
+endm
+;-------------------------------------------------
+sbc_mm	macro	Register1,Register2
+		mvma	Register2
+		xorl	0xf
+		addm	Register1
+		mvam	Register1
+endm
+;-------------------------------------------------
+sub_2mm	macro	Register1H,Register1L,Register2H,Register2L
+		sub_mm	Register1L,Register2L
+		sbc_mm	Register1H,Register2H
+endm
+;-------------------------------------------------
+dec_2m	macro	RegisterH,RegisterL
+	local	L_Exit
+		decm	RegisterL
+		mvam	RegisterL
+		jc		L_Exit
+		decm	RegisterH
+		mvam	RegisterH
+	L_Exit:
+endm
+;-------------------------------------------------
+dec_3m	macro	RegisterH,RegisterM,RegisterL
+	local	L_Exit
+		decm	RegisterL
+		mvam	RegisterL
+		jc		L_Exit
+		decm	RegisterM
+		mvam	RegisterM
+		jc		L_Exit
+		decm	RegisterH
+		mvam	RegisterH
+	L_Exit:
+endm
+;=================================================
+;		扩展指令
+;=================================================
+mvlm	macro	Register,Constant
+		mvla	Constant
+		mvam	Register
+endm
+;-------------------------------------------------
+jz_3m	macro	RegisterH,RegisterM,RegisterL,Address
+		mvma	RegisterH
+		orm		RegisterM
+		orm		RegisterL
+		jz		Address
+endm

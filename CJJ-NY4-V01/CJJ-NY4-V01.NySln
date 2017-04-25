@@ -1,0 +1,17 @@
+﻿
+Nyquest IDE Solution File, Format Version 1.00
+# NYIDE 2.61.0.919
+Project("{12B76EC0-1D7B-4FA7-A7D0-C524288B48A1}") = "CJJ-NY4-V01", "CJJ-NY4-V01.naprj", "{D06CB0B1-7640-4462-9224-978918487095}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any = Debug|Any
+		Release|Any = Release|Any
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D06CB0B1-7640-4462-9224-978918487095}.Debug|Any.Build.0 = Debug|Any
+		{D06CB0B1-7640-4462-9224-978918487095}.Debug|Any.ActiveCfg = Debug|Any
+		{D06CB0B1-7640-4462-9224-978918487095}.Release|Any.Build.0 = Release|Any
+		{D06CB0B1-7640-4462-9224-978918487095}.Release|Any.ActiveCfg = Release|Any
+	EndGlobalSection
+EndGlobal
